@@ -1489,6 +1489,34 @@
         });
       }
 
+      /* 예약을 취소 처리하면서 그날의 판매 수량에서도 빼줍니다.
+         → 취소된 만큼 해당 과일이 다시 열립니다. (이미 취소된 건은 건드리지 않음) */
+      async function releaseCancelled(t) {
+        const tRef = doc(db, "tickets", t.id);
+        const cRef = doc(db, "counters", t.date || todayStr());
+        return await runTransaction(db, async (tx) => {
+          const ts = await tx.get(tRef);
+          if (!ts.exists()) return false;
+          const cur = ts.data();
+          if (cur.cancelled) return false;
+          const cs = await tx.get(cRef);
+          const counts = { ...((cs.exists() && cs.data().counts) || {}) };
+          const items = cur.items || {};
+          FRUITS.forEach((f) => {
+            const n = items[f] || 0;
+            if (n) counts[f] = Math.max(0, (counts[f] || 0) - n);
+          });
+          tx.set(cRef, { counts }, { merge: true });
+          tx.update(tRef, {
+            cancelled: true,
+            cancelledAt: serverTimestamp(),
+            phone: "",
+            personalDeleted: true,
+          });
+          return true;
+        });
+      }
+
       /* ---------- 재방문 ---------- */
       async function handleRevisit(t) {
         if (t.received) {
@@ -1503,12 +1531,7 @@
         if (t.cancelled || isExpired(t)) {
           // 픽업 시간이 지난 예약은 취소 처리하고 전화번호를 지웁니다.
           if (!t.cancelled) {
-            updateDoc(doc(db, "tickets", t.id), {
-              cancelled: true,
-              cancelledAt: serverTimestamp(),
-              phone: "",
-              personalDeleted: true,
-            }).catch((e) => console.error(e));
+            releaseCancelled(t).catch((e) => console.error(e));
           }
           renderResult({ ...t, state: "cancelled", time: t.createdAt });
           return;

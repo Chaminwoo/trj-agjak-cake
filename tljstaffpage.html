@@ -1170,14 +1170,41 @@
         return parts.length ? parts.join(" · ") : "—";
       }
 
+      /* 예약을 취소/취소해제 하면서 그날의 과일 수량도 같이 되돌립니다.
+         취소된 예약의 케이크는 판매 수량에서 빠지므로 그만큼 다시 열립니다.
+         (이미 같은 상태면 아무것도 하지 않아 중복 반영되지 않습니다) */
+      async function setCancelled(r, cancelled, extra = {}) {
+        const tRef = doc(db, "tickets", r.id);
+        const cRef = doc(db, "counters", r.date || viewDate);
+        return await runTransaction(db, async (tx) => {
+          const ts = await tx.get(tRef);
+          if (!ts.exists()) return false;
+          const t = ts.data();
+          if (!!t.cancelled === !!cancelled) return false;
+          const cs = await tx.get(cRef);
+          const counts = { ...((cs.exists() && cs.data().counts) || {}) };
+          const items = t.items || {};
+          FRUITS.forEach((f) => {
+            const n = items[f] || 0;
+            if (!n) return;
+            counts[f] = Math.max(0, (counts[f] || 0) + (cancelled ? -n : n));
+          });
+          tx.set(cRef, { counts }, { merge: true });
+          tx.update(tRef, {
+            cancelled: !!cancelled,
+            cancelledAt: cancelled ? serverTimestamp() : null,
+            ...extra,
+          });
+          return true;
+        });
+      }
+
       // 픽업 시간이 지난 예약을 '취소됨'으로 바꾸고 전화번호를 파기합니다.
       async function autoCancelExpired(rows) {
         const targets = rows.filter((r) => isExpired(r));
         for (const r of targets) {
           try {
-            await updateDoc(doc(db, "tickets", r.id), {
-              cancelled: true,
-              cancelledAt: serverTimestamp(),
+            await setCancelled(r, true, {
               phone: "",
               personalDeleted: true,
             });
@@ -1264,14 +1291,12 @@
         if (r.cancelled) {
           const ok = await confirmBox(
             "취소 해제",
-            `${r.ticketNo}번 예약을 '미수령' 상태로 되돌릴까요? 이미 파기된 전화번호는 복구되지 않습니다.`,
+            `${r.ticketNo}번 예약을 '미수령' 상태로 되돌릴까요? 이 예약의 케이크 수량이 다시 판매 수량에 포함됩니다. (이미 파기된 전화번호는 복구되지 않습니다)`,
           );
           if (!ok) return;
           try {
-            await updateDoc(doc(db, "tickets", r.id), {
-              cancelled: false,
-              cancelledAt: null,
-            });
+            // 되돌리면 그 예약의 케이크 수량이 다시 판매 수량에 포함됩니다.
+            await setCancelled(r, false);
           } catch (e) {
             console.error(e);
             alert("변경에 실패했습니다.");
