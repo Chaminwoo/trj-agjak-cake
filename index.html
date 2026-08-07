@@ -837,6 +837,7 @@
         getFirestore,
         doc,
         getDoc,
+        onSnapshot,
         runTransaction,
         serverTimestamp,
         updateDoc,
@@ -1132,6 +1133,40 @@
         const list = blockedList(DAY);
         applyBlocked(list);
         return list;
+      }
+
+      /* 마감 상태를 실시간으로 따라갑니다.
+         관리자가 마감을 풀거나, 예약 취소·삭제로 재고가 돌아오면
+         손님이 화면을 켜 둔 상태에서도 곧바로 다시 열립니다. */
+      const isVisible = (el) => el && !el.classList.contains("hidden");
+      function watchDay() {
+        try {
+          onSnapshot(
+            doc(db, "counters", todayStr()),
+            (snap) => {
+              DAY = snap.exists()
+                ? snap.data()
+                : { closedTypes: [], counts: {} };
+              const list = blockedList(DAY);
+              applyBlocked(list);
+
+              // 이미 번호표를 받은 손님의 화면은 건드리지 않습니다.
+              if (isVisible($("screen-result"))) return;
+
+              if (allClosed(list)) {
+                if (!isVisible($("screen-closed"))) showClosed();
+              } else if (isVisible($("screen-closed"))) {
+                hide($("screen-closed"));
+                show($("screen-phone"));
+                show($("t-footer"));
+                restartFade($("screen-phone"));
+              }
+            },
+            (e) => console.error("마감 상태 구독 실패", e),
+          );
+        } catch (e) {
+          console.error(e);
+        }
       }
 
       /* ---------- STEP 1 : 전화번호 + 동의 ---------- */
@@ -1639,6 +1674,7 @@
       async function start() {
         try {
           const list = await refreshDay();
+          watchDay();
           if (allClosed(list)) {
             busy(false);
             show($("screen-closed"));
