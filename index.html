@@ -352,21 +352,20 @@
         opacity: 0.42;
         pointer-events: none;
       }
-      .bagWrap {
+      .labActions {
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
+        align-items: center;
         gap: 6px;
-      }
-      .bagWrap > .bag:first-child {
-        width: 100%;
       }
       .icepackChip {
         width: auto;
-        align-self: flex-end;
+        justify-content: center;
         gap: 6px;
         padding: 6px 11px;
         border-radius: 9px;
+      }
+      .icepackChip:not(.on) .bq {
+        display: none;
       }
       .icepackChip .bn {
         font-size: 11.5px;
@@ -760,7 +759,10 @@
         <div class="field">
           <div class="labrow">
             <span class="lab" id="t-bagLabel"></span>
-            <button type="button" class="mini" id="bagReset"></button>
+            <div class="labActions">
+              <div id="icepackSlot"></div>
+              <button type="button" class="mini" id="bagReset"></button>
+            </div>
           </div>
           <div class="bags" id="bags"></div>
           <p class="subnote" id="t-bagNoteFruitbox"></p>
@@ -929,25 +931,21 @@
       $("phone").placeholder = T.phonePlaceholder;
       $("entryCode").placeholder = T.codePlaceholder;
 
-      /* ---------- 포장 목록 (아이스팩은 과일상자 카드 우측 하단에 붙여서 표시) ---------- */
+      /* ---------- 포장 목록 (아이스팩은 '선택 초기화' 왼쪽 칩으로 표시) ---------- */
       $("bags").innerHTML = BAGS.filter((b) => b.k !== "icepack")
-        .map((b) => {
-          const row = `
+        .map(
+          (b) => `
   <div class="bag" data-b="${b.k}">
     <span class="bi"><span class="bn">${BAG_NAME[b.k]}</span><span class="bp">${b.price ? T.priceFmt(b.price) : T.freeText}</span></span>
     <span class="bq"></span>
-  </div>`;
-          if (b.k !== "fruitbox") return row;
-          return `
-  <div class="bagWrap">
-    ${row}
-    <div class="bag icepackChip" data-b="icepack">
-      <span class="bn">${BAG_NAME.icepack}</span>
-      <span class="bq"></span>
-    </div>
-  </div>`;
-        })
+  </div>`,
+        )
         .join("");
+      $("icepackSlot").innerHTML = `
+  <div class="bag icepackChip" data-b="icepack">
+    <span class="bn">${BAG_NAME.icepack}</span>
+    <span class="bq"></span>
+  </div>`;
 
       /* ---------- 픽업 시간 슬롯 ---------- */
       const SLOTS = [];
