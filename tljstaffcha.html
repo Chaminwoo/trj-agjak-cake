@@ -1,0 +1,1390 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>번호표 관리</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      :root {
+        --page: #ffffff;
+        --card: #fff6ef;
+        --text: #1f1d1b;
+        --muted: #8c837c;
+        --line: #eae0d6;
+        --line-strong: #dccfc2;
+        --brand: #005a34;
+        --danger: #b42318;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        margin: 0;
+        font-family:
+          "Pretendard",
+          "Pretendard Variable",
+          -apple-system,
+          system-ui,
+          sans-serif;
+        color: var(--text);
+        background: var(--page);
+        min-height: 100vh;
+        padding: 30px 20px 60px;
+        word-break: keep-all;
+      }
+      @media (max-width: 700px) {
+        body {
+          padding: 18px 14px 40px;
+        }
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      header.top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+      }
+      header.top img {
+        height: 24px;
+        width: auto;
+        display: block;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-left: auto;
+      }
+      @media (max-width: 700px) {
+        .controls {
+          justify-content: center;
+          margin-left: 0;
+          width: 100%;
+        }
+      }
+      .datebox {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 12px;
+        background: #fff;
+      }
+      .datebox input {
+        border: none;
+        background: none;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text);
+        outline: none;
+      }
+      .btn {
+        border: 1px solid var(--brand);
+        border-radius: 10px;
+        padding: 9px 15px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        color: #fff;
+        background: var(--brand);
+      }
+      .btn.line {
+        background: #fff;
+        color: var(--brand);
+      }
+      .btn.gray {
+        background: #fff;
+        color: var(--muted);
+        border-color: var(--line-strong);
+      }
+      .btn.danger {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: #fff;
+      }
+      .btn:active {
+        opacity: 0.85;
+      }
+
+      .banner {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #fdecea;
+        border: 1px solid #f4c8c3;
+        color: #8a2a20;
+        border-radius: 12px;
+        padding: 11px 16px;
+        font-size: 13.5px;
+        font-weight: 600;
+        margin-bottom: 14px;
+        text-align: center;
+        line-height: 1.55;
+      }
+      .banner.on {
+        display: flex;
+      }
+
+      /* ---- 오늘의 입장코드 ---- */
+      .codebar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        border: 1px solid var(--brand);
+        background: #f2f8f5;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+      }
+      .codebar .cl {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--brand);
+      }
+      .codebar .cv {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: 8px;
+        color: var(--brand);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+      .codebar .btn {
+        padding: 7px 12px;
+        font-size: 12.5px;
+      }
+
+      .statwrap {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .stats {
+        display: flex;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card);
+        overflow: hidden;
+      }
+      .stats.g3 {
+        flex: 3;
+      }
+      .stats.g4 {
+        flex: 4;
+      }
+      .stats.g1 {
+        flex: 1.15;
+      }
+      .stat {
+        position: relative;
+        flex: 1;
+        padding: 16px 14px;
+        text-align: center;
+      }
+      .stat:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 14px;
+        bottom: 14px;
+        right: 0;
+        width: 1px;
+        background: var(--line);
+      }
+      .stat .l {
+        font-size: 12.5px;
+        color: var(--muted);
+        font-weight: 500;
+        margin-bottom: 5px;
+        white-space: nowrap;
+      }
+      .stat .n {
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.5px;
+      }
+      .stat .cap {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 500;
+        margin-top: 5px;
+      }
+      .stat.done .n {
+        color: var(--brand);
+      }
+      .stat.full .n,
+      .stat.full .cap {
+        color: var(--danger);
+      }
+      @media (max-width: 700px) {
+        .statwrap {
+          flex-direction: column;
+        }
+        .stat {
+          padding: 14px 6px;
+        }
+        .stat .n {
+          font-size: 23px;
+        }
+        .stat .l {
+          font-size: 12px;
+        }
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card);
+        overflow: hidden;
+      }
+      .phead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--line-strong);
+      }
+      .phead .d {
+        font-size: 14.5px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .phead .s {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: right;
+        line-height: 1.5;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        min-width: 780px;
+      }
+      col.c-no {
+        width: 58px;
+      }
+      col.c-ph {
+        width: 124px;
+      }
+      col.c-ty {
+        width: 172px;
+      }
+      col.c-bg {
+        width: 156px;
+      }
+      col.c-pk {
+        width: 70px;
+      }
+      col.c-tm {
+        width: 70px;
+      }
+      col.c-st {
+        width: 86px;
+      }
+      col.c-mg {
+        width: 74px;
+      }
+      th,
+      td {
+        padding: 12px 8px;
+        font-size: 14px;
+        border-right: 1px solid var(--line);
+        vertical-align: middle;
+        text-align: center;
+      }
+      th:last-child,
+      td:last-child {
+        border-right: none;
+      }
+      thead th {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 600;
+        background: #fbf3ec;
+        border-bottom: 1px solid var(--line-strong);
+        white-space: nowrap;
+        letter-spacing: 0.2px;
+      }
+      tbody tr {
+        border-bottom: 1px solid var(--line);
+      }
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: #fdf9f5;
+      }
+
+      td.col-no {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--brand);
+        font-variant-numeric: tabular-nums;
+      }
+      td.col-pk {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        font-size: 13.5px;
+      }
+      td.col-ph {
+        color: #6b625b;
+        font-variant-numeric: tabular-nums;
+        font-size: 13.5px;
+      }
+      td.col-tm {
+        color: #6b625b;
+        font-variant-numeric: tabular-nums;
+        font-size: 13.5px;
+      }
+      td.col-bg {
+        font-size: 13px;
+        color: #4a423c;
+        line-height: 1.5;
+      }
+
+      /* 과일별 색 분류 */
+      .chip {
+        display: inline-block;
+        margin: 2px 2px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 600;
+        border: 1px solid;
+        white-space: nowrap;
+      }
+      .chip.peach {
+        background: #ffe9e2;
+        border-color: #f1bcae;
+        color: #a54c38;
+      }
+      .chip.mango {
+        background: #fff0d6;
+        border-color: #efc673;
+        color: #93630a;
+      }
+      .chip.lemon {
+        background: #f8f5cd;
+        border-color: #dcd167;
+        color: #736908;
+      }
+      .chip.melon {
+        background: #e4f1dd;
+        border-color: #a8cd99;
+        color: #426d36;
+      }
+
+      .status-btn {
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        transition: 0.15s;
+        min-width: 60px;
+      }
+      .status-btn.received {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+      }
+      .status-btn.pending {
+        background: #fff;
+        color: var(--muted);
+        border-color: var(--line-strong);
+      }
+      .status-btn.cancelled {
+        background: #fdf3f2;
+        color: var(--danger);
+        border-color: #f0cabf;
+      }
+      /* 취소된 예약은 행 전체에 취소선 */
+      tbody tr.cancelled td:not(.col-st):not(.col-mg) {
+        color: var(--muted);
+        text-decoration: line-through;
+        text-decoration-thickness: 1.5px;
+      }
+      tbody tr.cancelled .chip {
+        opacity: 0.45;
+        text-decoration: line-through;
+      }
+      .del-btn {
+        border: 1px solid var(--line-strong);
+        background: #fff;
+        color: var(--danger);
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 6px 11px;
+        border-radius: 8px;
+        transition: 0.15s;
+      }
+      .del-btn:hover {
+        border-color: var(--danger);
+        background: #fdf3f2;
+      }
+      .status-btn:active,
+      .del-btn:active {
+        opacity: 0.8;
+      }
+
+      .empty {
+        padding: 54px 20px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .closebar {
+        margin-top: 22px;
+        display: flex;
+        justify-content: center;
+      }
+      .closebar .btn {
+        padding: 13px 28px;
+        font-size: 14.5px;
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(31, 29, 27, 0.45);
+        display: none;
+        place-items: center;
+        z-index: 60;
+        padding: 20px;
+      }
+      .modal.on {
+        display: grid;
+      }
+      .modal .box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 26px;
+        max-width: 340px;
+        width: 100%;
+        text-align: center;
+        border: 1px solid var(--line);
+      }
+      .modal h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .modal .msg {
+        margin: 0 0 20px;
+        font-size: 13.5px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .modal .mbtns {
+        display: flex;
+        gap: 8px;
+      }
+      .modal .mbtns .btn {
+        flex: 1;
+      }
+      #qrCanvas {
+        display: block;
+        margin: 0 auto 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .fruit-toggle {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .ftbtn {
+        border: 1px solid var(--line-strong);
+        background: #fff;
+        border-radius: 12px;
+        padding: 16px 8px;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--text);
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .ftbtn .sub {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--muted);
+        margin-top: 5px;
+      }
+      .ftbtn.closed {
+        border-color: var(--danger);
+        background: #fdf3f2;
+        color: var(--danger);
+      }
+      .ftbtn.closed .sub {
+        color: var(--danger);
+      }
+      .ftbtn.soldout {
+        border-color: var(--line-strong);
+        background: #f6f4f2;
+        color: var(--muted);
+      }
+
+      .gate {
+        position: fixed;
+        inset: 0;
+        background: var(--card);
+        display: grid;
+        place-items: center;
+        z-index: 80;
+        padding: 20px;
+      }
+      .gate .g {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 30px 26px;
+        width: 100%;
+        max-width: 320px;
+        text-align: center;
+      }
+      .gate img {
+        height: 22px;
+        margin-bottom: 20px;
+      }
+      .gate input {
+        width: 100%;
+        text-align: center;
+        font-size: 15px;
+        border: 1.5px solid var(--brand);
+        border-radius: 10px;
+        padding: 12px;
+        font-family: inherit;
+        outline: none;
+        background: #fff;
+      }
+      .gate input + input {
+        margin-top: 8px;
+      }
+      .gate input:focus {
+        border-color: var(--brand);
+      }
+      .gate .btn {
+        width: 100%;
+        margin-top: 12px;
+        padding: 13px;
+      }
+      .gate .err {
+        color: #c0392b;
+        font-size: 12.5px;
+        min-height: 16px;
+        margin-top: 8px;
+      }
+      input[type="password"]::-ms-reveal,
+      input[type="password"]::-ms-clear {
+        display: none;
+      }
+      input[type="password"]::-webkit-credentials-auto-fill-button,
+      input[type="password"]::-webkit-textfield-decoration-container {
+        display: none !important;
+        visibility: hidden;
+      }
+
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #qrModal,
+        #qrModal * {
+          visibility: visible;
+        }
+        #qrModal {
+          position: absolute;
+          background: none;
+          inset: 0;
+        }
+        #qrModal .box {
+          border: none;
+        }
+        #qrModal .mbtns {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gate" id="gate">
+      <div class="g">
+        <img src="./src/logo.png" alt="" />
+        <input id="email" type="text" autocomplete="username" placeholder="아이디" />
+        <input
+          id="pass"
+          type="password"
+          autocomplete="current-password"
+          placeholder="비밀번호"
+        />
+        <div class="err" id="passErr"></div>
+        <button class="btn" id="passBtn">로그인</button>
+      </div>
+    </div>
+
+    <div class="wrap" id="app" style="display: none">
+      <header class="top">
+        <img src="./src/logo.png" alt="" />
+        <div class="controls">
+          <div class="datebox"><input id="datePick" type="date" /></div>
+          <button class="btn line" id="todayBtn">오늘</button>
+          <button class="btn" id="qrBtn">QR 코드</button>
+          <button class="btn gray" id="logoutBtn">로그아웃</button>
+        </div>
+      </header>
+
+      <div class="codebar" id="codeBar" style="display: none">
+        <span class="cl">오늘의 입장코드</span>
+        <span class="cv" id="entryCodeVal">----</span>
+        <button class="btn line" id="codeNewBtn">새로 발급</button>
+      </div>
+
+      <div class="banner" id="closedBanner"></div>
+
+      <div class="statwrap">
+        <div class="stats g4">
+          <div class="stat">
+            <div class="l">발급</div>
+            <div class="n" id="stTot">0</div>
+          </div>
+          <div class="stat done">
+            <div class="l">수령</div>
+            <div class="n" id="stDone">0</div>
+          </div>
+          <div class="stat">
+            <div class="l">미수령</div>
+            <div class="n" id="stWait">0</div>
+          </div>
+          <div class="stat">
+            <div class="l">취소</div>
+            <div class="n" id="stCancel">0</div>
+          </div>
+        </div>
+        <div class="stats g4" id="fruitStats"></div>
+        <div class="stats g1">
+          <div class="stat">
+            <div class="l">과일상자</div>
+            <div class="n" id="stBox">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="phead">
+          <span class="d" id="panelDate">—</span>
+          <span class="s" id="panelNote">수령 여부나 삭제는 직접 관리 가능합니다.</span>
+        </div>
+        <div style="overflow-x: auto">
+          <table>
+            <colgroup>
+              <col class="c-no" />
+              <col class="c-ph" />
+              <col class="c-ty" />
+              <col class="c-bg" />
+              <col class="c-pk" />
+              <col class="c-tm" />
+              <col class="c-st" />
+              <col class="c-mg" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>번호</th>
+                <th>전화번호</th>
+                <th>종류</th>
+                <th>상자</th>
+                <th>픽업</th>
+                <th>발급</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="empty" style="display: none">
+          발급된 번호표가 없습니다.
+        </div>
+      </div>
+
+      <div class="closebar">
+        <button class="btn danger" id="closeDayBtn">금일 마감하기</button>
+      </div>
+    </div>
+
+    <div class="modal" id="qrModal">
+      <div class="box">
+        <h3>고객용 QR 코드</h3>
+        <canvas id="qrCanvas"></canvas>
+        <div class="mbtns">
+          <button class="btn" id="qrDownload">저장</button>
+          <button class="btn line" id="qrPrint">인쇄</button>
+          <button class="btn gray" id="qrClose">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="confirmModal">
+      <div class="box">
+        <h3 id="cfTitle"></h3>
+        <p class="msg" id="cfMsg"></p>
+        <div class="mbtns">
+          <button class="btn gray" id="cfCancel">취소</button>
+          <button class="btn" id="cfOk">확인</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="closeModal">
+      <div class="box">
+        <h3>마감 관리</h3>
+        <p class="msg">
+          수량이 다 차면 자동으로 마감됩니다. <br />품목을 누르면 바로 마감되고,
+          다시 누르면 취소됩니다.
+        </p>
+        <div class="fruit-toggle" id="fruitToggle"></div>
+        <div class="mbtns">
+          <button class="btn gray" id="closeModalClose">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        query,
+        where,
+        getDocs,
+        limit,
+        onSnapshot,
+        doc,
+        updateDoc,
+        setDoc,
+        runTransaction,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        firebaseConfig,
+        FRUITS,
+        FRUIT_LIMITS,
+        BAGS,
+        RETENTION_DAYS,
+        ADMIN_ID_DOMAIN,
+        CANCEL_GRACE_MIN,
+      } from "./firebase-config.js?v=8";
+      import { drawQR } from "./qr.js?v=8";
+
+      const $ = (id) => document.getElementById(id);
+      const NAME = {
+        peach: "복숭아",
+        mango: "망고",
+        lemon: "레몬",
+        melon: "메론",
+      };
+      const BAG_SHORT = {
+        free: "봉투",
+        shopping: "쇼핑백",
+        cooler: "보냉팩",
+        icepack: "아이스팩",
+        fruitbox: "과일상자",
+      };
+      const gen4 = () => String(Math.floor(1000 + Math.random() * 9000));
+
+      // 예전 번호표는 types(배열), 새 번호표는 items(개수)로 저장됩니다.
+      function itemsOf(r) {
+        if (r.items && typeof r.items === "object") return r.items;
+        const o = {};
+        (r.types || []).forEach((t) => {
+          o[t] = 1;
+        });
+        return o;
+      }
+      const cakeCountOf = (r) =>
+        FRUITS.reduce((a, f) => a + (itemsOf(r)[f] || 0), 0);
+
+      // 픽업 시간 + 유예시간이 지났는지 (오늘 날짜 기준)
+      function isExpired(r, now = new Date()) {
+        if (r.received || r.cancelled) return false;
+        if (r.date !== todayStr(now)) return true;
+        if (!r.pickupAt) return false;
+        const [hh, mm] = String(r.pickupAt).split(":").map(Number);
+        if (Number.isNaN(hh) || Number.isNaN(mm)) return false;
+        return (
+          now.getHours() * 60 + now.getMinutes() >
+          hh * 60 + mm + CANCEL_GRACE_MIN
+        );
+      }
+
+      /* ---------- 로그인 (Firebase Authentication) ---------- */
+      let app, auth, booted = false;
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+      } catch (e) {
+        console.error(e);
+        alert("Firebase 설정을 확인해 주세요. (firebase-config.js)");
+      }
+
+      $("passBtn").addEventListener("click", tryPass);
+      ["email", "pass"].forEach((id) =>
+        $(id).addEventListener("keydown", (e) => {
+          if (e.key === "Enter") tryPass();
+        }),
+      );
+      $("email").focus();
+
+      // 아이디만 입력받아 내부적으로 이메일 형식으로 바꿔 로그인합니다.
+      // (Firebase Authentication은 이메일 형식 식별자가 필요하지만,
+      //  화면에는 "아이디"만 보이고 실제 이메일 주소는 필요 없습니다.)
+      function toLoginEmail(id) {
+        id = id.trim().toLowerCase();
+        return id.includes("@") ? id : `${id}${ADMIN_ID_DOMAIN}`;
+      }
+
+      async function tryPass() {
+        const idVal = $("email").value.trim();
+        const pw = $("pass").value;
+        $("passErr").textContent = "";
+        if (!idVal || !pw) {
+          $("passErr").textContent = "아이디와 비밀번호를 모두 입력해 주세요.";
+          return;
+        }
+        $("passBtn").disabled = true;
+        try {
+          await signInWithEmailAndPassword(auth, toLoginEmail(idVal), pw);
+        } catch (e) {
+          console.error(e.code || e);
+          $("passErr").textContent =
+            e.code === "auth/too-many-requests"
+              ? "시도가 너무 많습니다. 잠시 후 다시 시도해 주세요."
+              : "아이디 또는 비밀번호가 올바르지 않습니다.";
+          $("pass").value = "";
+        } finally {
+          $("passBtn").disabled = false;
+        }
+      }
+
+      if (auth) {
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            $("gate").style.display = "none";
+            $("app").style.display = "block";
+            if (!booted) {
+              booted = true;
+              boot();
+            }
+          } else {
+            $("gate").style.display = "grid";
+            $("app").style.display = "none";
+          }
+        });
+      }
+      $("logoutBtn").addEventListener("click", async () => {
+        const ok = await confirmBox("로그아웃", "로그아웃할까요?");
+        if (!ok) return;
+        try {
+          await signOut(auth);
+          location.reload();
+        } catch (e) {
+          console.error(e);
+        }
+      });
+
+      /* ---------- 확인창 ---------- */
+      let cfResolve = null;
+      function confirmBox(title, msg, danger = false) {
+        $("cfTitle").textContent = title;
+        $("cfMsg").textContent = msg;
+        $("cfOk").className = danger ? "btn danger" : "btn";
+        $("confirmModal").classList.add("on");
+        return new Promise((res) => {
+          cfResolve = res;
+        });
+      }
+      function closeConfirm(v) {
+        $("confirmModal").classList.remove("on");
+        if (cfResolve) {
+          cfResolve(v);
+          cfResolve = null;
+        }
+      }
+      $("cfOk").addEventListener("click", () => closeConfirm(true));
+      $("cfCancel").addEventListener("click", () => closeConfirm(false));
+      $("confirmModal").addEventListener("click", (e) => {
+        if (e.target.id === "confirmModal") closeConfirm(false);
+      });
+
+      /* ---------- 통계·마감 영역 뼈대 ---------- */
+      $("fruitStats").innerHTML = FRUITS.map(
+        (f) => `
+        <div class="stat" id="stat-${f}">
+          <div class="l">${NAME[f]}</div>
+          <div class="n" id="st-${f}">0</div>
+          <div class="cap">/ ${FRUIT_LIMITS[f]}</div>
+        </div>`,
+      ).join("");
+      $("fruitToggle").innerHTML = FRUITS.map(
+        (f) => `<button class="ftbtn" data-k="${f}" id="ft-${f}"></button>`,
+      ).join("");
+
+      /* ---------- init ---------- */
+      let db,
+        viewDate = "";
+      function boot() {
+        try {
+          db = getFirestore(app);
+          const t = todayStr();
+          $("datePick").value = t;
+          $("datePick").max = t;
+          subscribe(t);
+          maskOldTickets();
+        } catch (e) {
+          console.error(e);
+          alert("Firebase 연결에 실패했습니다.");
+        }
+      }
+
+      /* ---------- 보유기간 경과 기록 전화번호 파기 ----------
+         개인정보보호법상 목적 달성 후 파기 의무를 지키기 위해,
+         RETENTION_DAYS 가 지난 번호표의 전화번호를 되돌릴 수 없게 지웁니다.
+         (픽업 완료·예약 취소 시에는 즉시 지워지므로, 여기서는 미방문 건만 처리됩니다.)
+         예약 수량·수령 여부 통계는 그대로 남습니다. */
+      async function maskOldTickets() {
+        try {
+          const cut = new Date();
+          cut.setDate(cut.getDate() - RETENTION_DAYS);
+          const cutStr = todayStr(cut);
+          const snap = await getDocs(
+            query(
+              collection(db, "tickets"),
+              where("date", "<", cutStr),
+              limit(300),
+            ),
+          );
+          let n = 0;
+          for (const d of snap.docs) {
+            const v = d.data();
+            if (v.masked) continue;
+            await updateDoc(doc(db, "tickets", d.id), {
+              name: "",
+              phone: "",
+              masked: true,
+              personalDeleted: true,
+              maskedAt: serverTimestamp(),
+            });
+            n++;
+          }
+          if (n) console.info(`보유기간 경과 기록 ${n}건의 전화번호를 파기했습니다.`);
+        } catch (e) {
+          console.error("파기 처리 실패", e);
+        }
+      }
+
+      function todayStr(d = new Date()) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      }
+      function fmtPhone(d) {
+        d = (d || "").replace(/\D/g, "");
+        if (d.length >= 11)
+          return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7, 11)}`;
+        if (d.length === 10)
+          return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+        return d;
+      }
+      function fmtTime(ts) {
+        if (!ts) return "—";
+        const d = ts.toDate ? ts.toDate() : new Date(ts);
+        return d.toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+      function fmtDateLabel(s) {
+        const [y, m, d] = s.split("-");
+        return `${y}. ${+m}. ${+d}`;
+      }
+      const esc = (s) =>
+        (s || "").replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+
+      /* ---------- 실시간 구독 ---------- */
+      let unsubTickets = null,
+        unsubDay = null,
+        currentClosedTypes = [],
+        currentCounts = {},
+        soldOutTypes = [];
+
+      function subscribe(dateStr) {
+        viewDate = dateStr;
+        if (unsubTickets) unsubTickets();
+        if (unsubDay) unsubDay();
+        $("panelDate").textContent = fmtDateLabel(dateStr);
+        $("codeBar").style.display =
+          dateStr === todayStr() ? "flex" : "none";
+
+        unsubTickets = onSnapshot(
+          query(collection(db, "tickets"), where("date", "==", dateStr)),
+          (snap) => {
+            const rows = [];
+            snap.forEach((d) => rows.push({ id: d.id, ...d.data() }));
+            rows.sort((a, b) => (a.ticketNo || 0) - (b.ticketNo || 0));
+            render(rows);
+          },
+          (err) => console.error(err),
+        );
+
+        unsubDay = onSnapshot(
+          doc(db, "counters", dateStr),
+          (snap) => {
+            const data = snap.exists() ? snap.data() : {};
+            currentClosedTypes = Array.isArray(data.closedTypes)
+              ? data.closedTypes
+              : [];
+            currentCounts = data.counts || {};
+            soldOutTypes = FRUITS.filter(
+              (f) => (currentCounts[f] || 0) >= FRUIT_LIMITS[f],
+            );
+
+            // 오늘의 입장코드
+            if (dateStr === todayStr()) {
+              if (!data.entryCode) {
+                setDoc(
+                  doc(db, "counters", dateStr),
+                  { entryCode: gen4() },
+                  { merge: true },
+                ).catch((e) => console.error(e));
+              } else {
+                $("entryCodeVal").textContent = String(data.entryCode);
+              }
+            }
+
+            renderBanner();
+            if ($("closeModal").classList.contains("on")) renderCloseModal();
+          },
+          (err) => console.error(err),
+        );
+      }
+
+      function blockedTypes() {
+        return [...new Set([...currentClosedTypes, ...soldOutTypes])];
+      }
+      function renderBanner() {
+        const blocked = blockedTypes();
+        let msg = "";
+        if (blocked.length === FRUITS.length) {
+          msg = "이 날짜는 모두 마감되어 고객이 번호표를 받을 수 없습니다.";
+        } else if (blocked.length > 0) {
+          const names = blocked.map((k) => NAME[k]).join(", ");
+          msg = `${names} 마감 — 고객은 나머지 품목만 선택할 수 있습니다.`;
+        }
+        $("closedBanner").textContent = msg;
+        $("closedBanner").classList.toggle("on", blocked.length > 0);
+        FRUITS.forEach((f) => {
+          const el = $("stat-" + f);
+          if (el) el.classList.toggle("full", blocked.includes(f));
+        });
+      }
+
+      $("datePick").addEventListener("change", (e) =>
+        subscribe(e.target.value),
+      );
+      $("todayBtn").addEventListener("click", () => {
+        const t = todayStr();
+        $("datePick").value = t;
+        subscribe(t);
+      });
+      $("codeNewBtn").addEventListener("click", async () => {
+        const ok = await confirmBox(
+          "입장코드 새로 발급",
+          "새 코드를 발급하면 기존 코드는 더 이상 사용할 수 없습니다. 진행할까요?",
+        );
+        if (!ok) return;
+        try {
+          await setDoc(
+            doc(db, "counters", todayStr()),
+            { entryCode: gen4() },
+            { merge: true },
+          );
+        } catch (e) {
+          console.error(e);
+          alert("발급에 실패했습니다.");
+        }
+      });
+
+      /* ---------- 렌더 ---------- */
+      function bagCell(b) {
+        const parts = BAGS.map((x) => x.k)
+          .filter((k) => (b?.[k] || 0) > 0)
+          .map((k) => `${BAG_SHORT[k]} ${b[k]}`);
+        return parts.length ? parts.join(" · ") : "—";
+      }
+
+      // 픽업 시간이 지난 예약을 '취소됨'으로 바꾸고 전화번호를 파기합니다.
+      async function autoCancelExpired(rows) {
+        const targets = rows.filter((r) => isExpired(r));
+        for (const r of targets) {
+          try {
+            await updateDoc(doc(db, "tickets", r.id), {
+              cancelled: true,
+              cancelledAt: serverTimestamp(),
+              phone: "",
+              personalDeleted: true,
+            });
+          } catch (e) {
+            console.error("자동 취소 실패", e);
+          }
+        }
+      }
+
+      function render(rows) {
+        autoCancelExpired(rows);
+
+        const tb = $("tbody");
+        tb.innerHTML = "";
+        $("stTot").textContent = rows.length;
+        $("stDone").textContent = rows.filter((r) => r.received).length;
+        $("stWait").textContent = rows.filter(
+          (r) => !r.received && !r.cancelled,
+        ).length;
+        $("stCancel").textContent = rows.filter((r) => r.cancelled).length;
+        // 과일 수량은 취소된 예약을 빼고, 개수까지 합산합니다.
+        FRUITS.forEach((f) => {
+          $("st-" + f).textContent = rows
+            .filter((r) => !r.cancelled)
+            .reduce((a, r) => a + (itemsOf(r)[f] || 0), 0);
+        });
+        $("stBox").textContent = rows
+          .filter((r) => !r.cancelled)
+          .reduce((a, r) => a + ((r.bags && r.bags.fruitbox) || 0), 0);
+        $("empty").style.display = rows.length ? "none" : "block";
+        $("panelNote").textContent = rows.some((r) => r.masked)
+          ? `보유기간(${RETENTION_DAYS}일)이 지나 개인정보가 파기된 기록입니다.`
+          : "수령 여부나 삭제는 직접 관리 가능합니다.";
+
+        for (const r of rows) {
+          const tr = document.createElement("tr");
+          if (r.cancelled) tr.className = "cancelled";
+          const items = itemsOf(r);
+          const chips = FRUITS.filter((f) => (items[f] || 0) > 0)
+            .map(
+              (f) =>
+                `<span class="chip ${f}">${esc(NAME[f])}${items[f] > 1 ? " " + items[f] : ""}</span>`,
+            )
+            .join("");
+          const phoneCell = r.personalDeleted
+            ? "파기됨"
+            : r.masked
+              ? "보관기간 만료"
+              : fmtPhone(r.phone);
+          tr.innerHTML = `
+      <td class="col-no">${r.ticketNo ?? "-"}</td>
+      <td class="col-ph">${phoneCell}</td>
+      <td class="col-ty">${chips}</td>
+      <td class="col-bg">${esc(bagCell(r.bags))}</td>
+      <td class="col-pk">${esc(r.pickupAt || "—")}</td>
+      <td class="col-tm">${fmtTime(r.createdAt)}</td>
+      <td class="col-st"></td>
+      <td class="col-mg"></td>`;
+
+          const sb = document.createElement("button");
+          if (r.cancelled) {
+            sb.className = "status-btn cancelled";
+            sb.textContent = "취소됨";
+          } else {
+            sb.className = "status-btn " + (r.received ? "received" : "pending");
+            sb.textContent = r.received ? "수령" : "미수령";
+          }
+          sb.addEventListener("click", () => toggle(r));
+          tr.querySelector(".col-st").appendChild(sb);
+
+          const dbtn = document.createElement("button");
+          dbtn.className = "del-btn";
+          dbtn.textContent = "삭제";
+          dbtn.addEventListener("click", () => removeTicket(r));
+          tr.querySelector(".col-mg").appendChild(dbtn);
+
+          tb.appendChild(tr);
+        }
+      }
+
+      async function toggle(r) {
+        // 취소된 예약은 '미수령'으로 되돌릴 수 있습니다. (전화번호는 복구되지 않습니다)
+        if (r.cancelled) {
+          const ok = await confirmBox(
+            "취소 해제",
+            `${r.ticketNo}번 예약을 '미수령' 상태로 되돌릴까요? 이미 파기된 전화번호는 복구되지 않습니다.`,
+          );
+          if (!ok) return;
+          try {
+            await updateDoc(doc(db, "tickets", r.id), {
+              cancelled: false,
+              cancelledAt: null,
+            });
+          } catch (e) {
+            console.error(e);
+            alert("변경에 실패했습니다.");
+          }
+          return;
+        }
+        const next = r.received ? "미수령" : "수령";
+        const ok = await confirmBox(
+          "상태 변경",
+          `${r.ticketNo}번 예약을 '${next}' 상태로 변경할까요?`,
+        );
+        if (!ok) return;
+        try {
+          await updateDoc(doc(db, "tickets", r.id), {
+            received: !r.received,
+            receivedAt: !r.received ? serverTimestamp() : null,
+          });
+        } catch (e) {
+          console.error(e);
+          alert("변경에 실패했습니다.");
+        }
+      }
+
+      async function removeTicket(r) {
+        const ok = await confirmBox(
+          "번호표 삭제",
+          `${r.ticketNo}번 예약을 삭제할까요? 삭제하면 되돌릴 수 없습니다.`,
+          true,
+        );
+        if (!ok) return;
+        try {
+          const cRef = doc(db, "counters", r.date || viewDate);
+          const tRef = doc(db, "tickets", r.id);
+          const items = itemsOf(r);
+          await runTransaction(db, async (tx) => {
+            const cs = await tx.get(cRef);
+            const counts = { ...((cs.exists() && cs.data().counts) || {}) };
+            FRUITS.forEach((f) => {
+              const n = items[f] || 0;
+              if (n) counts[f] = Math.max(0, (counts[f] || 0) - n);
+            });
+            tx.set(cRef, { counts }, { merge: true });
+            tx.delete(tRef);
+          });
+        } catch (e) {
+          console.error(e);
+          alert(
+            "삭제에 실패했습니다. Firestore 규칙에서 삭제가 허용되어 있는지 확인해 주세요.",
+          );
+        }
+      }
+
+      /* ---------- 마감 관리 ---------- */
+      function renderCloseModal() {
+        for (const k of FRUITS) {
+          const btn = $("ft-" + k);
+          if (!btn) continue;
+          const manual = currentClosedTypes.includes(k);
+          const sold = soldOutTypes.includes(k);
+          btn.classList.toggle("closed", manual);
+          btn.classList.toggle("soldout", !manual && sold);
+          const used = currentCounts[k] || 0;
+          const state = manual ? "수동 마감" : sold ? "수량 소진" : "열려있음";
+          btn.innerHTML = `${NAME[k]}<span class="sub">${state} · ${used}/${FRUIT_LIMITS[k]}</span>`;
+        }
+      }
+      $("closeDayBtn").addEventListener("click", () => {
+        renderCloseModal();
+        $("closeModal").classList.add("on");
+      });
+      $("closeModalClose").addEventListener("click", () =>
+        $("closeModal").classList.remove("on"),
+      );
+      $("closeModal").addEventListener("click", (e) => {
+        if (e.target.id === "closeModal")
+          $("closeModal").classList.remove("on");
+      });
+      $("fruitToggle").addEventListener("click", async (e) => {
+        const btn = e.target.closest(".ftbtn");
+        if (!btn) return;
+        const k = btn.dataset.k;
+        const isClosedNow = currentClosedTypes.includes(k);
+        const next = isClosedNow
+          ? currentClosedTypes.filter((x) => x !== k)
+          : [...currentClosedTypes, k];
+        try {
+          await setDoc(
+            doc(db, "counters", viewDate),
+            { closedTypes: next },
+            { merge: true },
+          );
+        } catch (err) {
+          console.error(err);
+          alert("처리에 실패했습니다.");
+        }
+      });
+
+      /* ---------- 고객용 QR ---------- */
+      const customerUrl = new URL("index.html", location.href).href;
+      $("qrBtn").addEventListener("click", () => {
+        $("qrModal").classList.add("on");
+        try {
+          drawQR($("qrCanvas"), customerUrl, {
+            size: 240,
+            margin: 4,
+            dark: "#005A34",
+            light: "#FFFFFF",
+          });
+        } catch (e) {
+          console.error(e);
+          alert("QR 생성에 실패했습니다.");
+        }
+      });
+      $("qrClose").addEventListener("click", () =>
+        $("qrModal").classList.remove("on"),
+      );
+      $("qrModal").addEventListener("click", (e) => {
+        if (e.target.id === "qrModal") $("qrModal").classList.remove("on");
+      });
+      $("qrDownload").addEventListener("click", () => {
+        const a = document.createElement("a");
+        a.href = $("qrCanvas").toDataURL("image/png");
+        a.download = "customer-qr.png";
+        a.click();
+      });
+      $("qrPrint").addEventListener("click", () => window.print());
+    </script>
+  </body>
+</html>
