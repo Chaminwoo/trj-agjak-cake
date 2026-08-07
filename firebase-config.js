@@ -12,6 +12,11 @@ export const firebaseConfig = {
   appId: "1:760790862630:web:7f41c18781ee7705e20fe7",
   measurementId: "G-CK8GBBX333",
 };
+// 1-1) 고객용 사이트 주소 (QR 코드가 가리킬 주소)
+//     실제 배포한 웹주소를 끝에 슬래시(/)까지 넣어 적어주세요.
+//     주소가 바뀌면 여기만 고치고 관리자 화면에서 QR을 다시 저장·인쇄하면 됩니다.
+export const CUSTOMER_SITE_URL = "https://trj-agjak.chaalsdn0217.workers.dev/";
+
 // 2) 매장 이름 (화면 상단에 표시됩니다)
 export const STORE_NAME = "TRJ";
 

@@ -815,6 +815,7 @@
         RETENTION_DAYS,
         ADMIN_ID_DOMAIN,
         CANCEL_GRACE_MIN,
+        CUSTOMER_SITE_URL,
       } from "./firebase-config.js?v=8";
       import { drawQR } from "./qr.js?v=8";
 
@@ -1369,7 +1370,9 @@
       });
 
       /* ---------- 고객용 QR ---------- */
-      const customerUrl = new URL("index.html", location.href).href;
+      const customerUrl =
+        (CUSTOMER_SITE_URL || "").trim() ||
+        new URL(".", location.href).href;
       $("qrBtn").addEventListener("click", () => {
         $("qrModal").classList.add("on");
         try {
