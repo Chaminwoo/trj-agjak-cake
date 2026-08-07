@@ -139,7 +139,7 @@
         display: flex;
       }
 
-      /* ---- 오늘의 입장코드 ---- */
+      /* ---- 입장코드 ---- */
       .codebar {
         display: flex;
         align-items: center;
@@ -640,7 +640,12 @@
     <div class="gate" id="gate">
       <div class="g">
         <img src="./src/logo.png" alt="" />
-        <input id="email" type="text" autocomplete="username" placeholder="아이디" />
+        <input
+          id="email"
+          type="text"
+          autocomplete="username"
+          placeholder="아이디"
+        />
         <input
           id="pass"
           type="password"
@@ -664,7 +669,7 @@
       </header>
 
       <div class="codebar" id="codeBar" style="display: none">
-        <span class="cl">오늘의 입장코드</span>
+        <span class="cl">입장코드</span>
         <span class="cv" id="entryCodeVal">----</span>
         <button class="btn line" id="codeNewBtn">새로 발급</button>
       </div>
@@ -702,7 +707,9 @@
       <div class="panel">
         <div class="phead">
           <span class="d" id="panelDate">—</span>
-          <span class="s" id="panelNote">수령 여부나 삭제는 직접 관리 가능합니다.</span>
+          <span class="s" id="panelNote"
+            >수령 여부나 삭제는 직접 관리 가능합니다.</span
+          >
         </div>
         <div style="overflow-x: auto">
           <table>
@@ -853,7 +860,9 @@
       }
 
       /* ---------- 로그인 (Firebase Authentication) ---------- */
-      let app, auth, booted = false;
+      let app,
+        auth,
+        booted = false;
       try {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
@@ -1011,7 +1020,10 @@
             });
             n++;
           }
-          if (n) console.info(`보유기간 경과 기록 ${n}건의 전화번호를 파기했습니다.`);
+          if (n)
+            console.info(
+              `보유기간 경과 기록 ${n}건의 전화번호를 파기했습니다.`,
+            );
         } catch (e) {
           console.error("파기 처리 실패", e);
         }
@@ -1058,8 +1070,7 @@
         if (unsubTickets) unsubTickets();
         if (unsubDay) unsubDay();
         $("panelDate").textContent = fmtDateLabel(dateStr);
-        $("codeBar").style.display =
-          dateStr === todayStr() ? "flex" : "none";
+        $("codeBar").style.display = dateStr === todayStr() ? "flex" : "none";
 
         unsubTickets = onSnapshot(
           query(collection(db, "tickets"), where("date", "==", dateStr)),
@@ -1230,7 +1241,8 @@
             sb.className = "status-btn cancelled";
             sb.textContent = "취소됨";
           } else {
-            sb.className = "status-btn " + (r.received ? "received" : "pending");
+            sb.className =
+              "status-btn " + (r.received ? "received" : "pending");
             sb.textContent = r.received ? "수령" : "미수령";
           }
           sb.addEventListener("click", () => toggle(r));
