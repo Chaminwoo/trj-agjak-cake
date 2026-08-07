@@ -8,3 +8,6 @@ firestore.rules
 .env.local
 .DS_Store
 node_modules/
+
+# 시뮬레이션 데이터 생성기 — 내부 테스트 전용, 배포 금지
+seed.html
