@@ -60,6 +60,15 @@
         width: auto;
         display: block;
       }
+      .storeTag {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--brand);
+        border: 1px solid var(--brand);
+        border-radius: 999px;
+        padding: 4px 11px;
+        white-space: nowrap;
+      }
       .controls {
         display: flex;
         align-items: center;
@@ -533,6 +542,66 @@
         cursor: pointer;
         transition: 0.15s;
       }
+      .limitBox {
+        border-top: 1px solid var(--line);
+        margin-top: 16px;
+        padding-top: 14px;
+        text-align: left;
+      }
+      .limitHead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .btn.sm {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      .limitGrid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .limitRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        padding: 8px 10px;
+      }
+      .limitRow .nm {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .limitRow input {
+        width: 68px;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        padding: 7px 8px;
+        font-family: inherit;
+        font-size: 14px;
+        text-align: right;
+        outline: none;
+      }
+      .limitRow input:focus {
+        border-color: var(--brand);
+      }
+      .limitNote {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin: 10px 2px 0;
+        line-height: 1.5;
+      }
+      .limitNote.warn {
+        color: var(--danger);
+        font-weight: 600;
+      }
       .ftbtn .sub {
         display: block;
         font-size: 11.5px;
@@ -608,10 +677,13 @@
       input[type="password"]::-ms-clear {
         display: none;
       }
-      input[type="password"]::-webkit-credentials-auto-fill-button,
-      input[type="password"]::-webkit-textfield-decoration-container {
-        display: none !important;
+      /* iOS Safari 에서 ::-webkit-textfield-decoration-container 를 숨기면
+         입력칸 자체를 탭할 수 없게 됩니다. 자동완성 버튼만 가립니다. */
+      input[type="password"]::-webkit-credentials-auto-fill-button {
         visibility: hidden;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
       }
 
       @media print {
@@ -660,6 +732,7 @@
     <div class="wrap" id="app" style="display: none">
       <header class="top">
         <img src="./src/logo.png" alt="" />
+        <span class="storeTag" id="storeName"></span>
         <div class="controls">
           <div class="datebox"><input id="datePick" type="date" /></div>
           <button class="btn line" id="todayBtn">오늘</button>
@@ -779,8 +852,21 @@
           다시 누르면 취소됩니다.
         </p>
         <div class="fruit-toggle" id="fruitToggle"></div>
+
+        <div class="limitBox">
+          <div class="limitHead">
+            <span>오늘 준비 수량</span>
+            <button class="btn line sm" id="limitReset">기본값으로</button>
+          </div>
+          <div class="limitGrid" id="limitGrid"></div>
+          <p class="limitNote" id="limitNote">
+            날짜가 바뀌면 기본 수량으로 자동 초기화됩니다.
+          </p>
+        </div>
+
         <div class="mbtns">
           <button class="btn gray" id="closeModalClose">닫기</button>
+          <button class="btn" id="limitSave">수량 저장</button>
         </div>
       </div>
     </div>
@@ -790,10 +876,7 @@
       import {
         getFirestore,
         collection,
-        query,
-        where,
         getDocs,
-        limit,
         onSnapshot,
         doc,
         updateDoc,
@@ -816,8 +899,11 @@
         ADMIN_ID_DOMAIN,
         CANCEL_GRACE_MIN,
         CUSTOMER_SITE_URL,
-      } from "./firebase-config.js?v=8";
-      import { drawQR } from "./qr.js?v=8";
+        STORES,
+        DEFAULT_STORE,
+        storeOfAdminId,
+      } from "./firebase-config.js?v=9";
+      import { drawQR } from "./qr.js?v=9";
 
       const $ = (id) => document.getElementById(id);
       const NAME = {
@@ -914,6 +1000,7 @@
       if (auth) {
         onAuthStateChanged(auth, (user) => {
           if (user) {
+            setStoreFromUser(user);
             $("gate").style.display = "none";
             $("app").style.display = "block";
             if (!booted) {
@@ -996,30 +1083,30 @@
          RETENTION_DAYS 가 지난 번호표의 전화번호를 되돌릴 수 없게 지웁니다.
          (픽업 완료·예약 취소 시에는 즉시 지워지므로, 여기서는 미방문 건만 처리됩니다.)
          예약 수량·수령 여부 통계는 그대로 남습니다. */
+      // 날짜별 컬렉션 구조라, 보유기간이 막 지난 날짜들을 거슬러 올라가며 확인합니다.
+      const MASK_SCAN_DAYS = 30;
       async function maskOldTickets() {
         try {
-          const cut = new Date();
-          cut.setDate(cut.getDate() - RETENTION_DAYS);
-          const cutStr = todayStr(cut);
-          const snap = await getDocs(
-            query(
-              collection(db, "tickets"),
-              where("date", "<", cutStr),
-              limit(300),
-            ),
-          );
           let n = 0;
-          for (const d of snap.docs) {
-            const v = d.data();
-            if (v.masked) continue;
-            await updateDoc(doc(db, "tickets", d.id), {
-              name: "",
-              phone: "",
-              masked: true,
-              personalDeleted: true,
-              maskedAt: serverTimestamp(),
-            });
-            n++;
+          for (let i = 0; i < MASK_SCAN_DAYS; i++) {
+            const d0 = new Date();
+            d0.setDate(d0.getDate() - RETENTION_DAYS - i);
+            const dateStr = todayStr(d0);
+            const snap = await getDocs(ticketsColOf(dateStr));
+            for (const d of snap.docs) {
+              const v = d.data();
+              if (v.masked) continue;
+              await updateDoc(ticketRefOf(dateStr, d.id), {
+                name: "",
+                phone: "",
+                masked: true,
+                personalDeleted: true,
+                maskedAt: serverTimestamp(),
+              });
+              n++;
+              if (n >= 300) break;
+            }
+            if (n >= 300) break;
           }
           if (n)
             console.info(
@@ -1059,11 +1146,30 @@
           (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
         );
 
+      /* ---------- 점포(매장) ----------
+         로그인한 관리자 아이디로 담당 점포를 정합니다.
+         번호표 : tickets / {점포} / {날짜} / {번호표}
+         카운터 : counters / {점포}_{날짜} */
+      let STORE = DEFAULT_STORE;
+      function setStoreFromUser(user) {
+        const id = String(user?.email || "").split("@")[0];
+        STORE = storeOfAdminId(id);
+        const label = (STORES[STORE] || {}).name || STORE;
+        const el = $("storeName");
+        if (el) el.textContent = label;
+        document.title = `${label} 관리자`;
+        return STORE;
+      }
+      const ticketsColOf = (date) => collection(db, "tickets", STORE, date);
+      const ticketRefOf = (date, id) => doc(db, "tickets", STORE, date, id);
+      const counterRefOf = (date) => doc(db, "counters", `${STORE}_${date}`);
+
       /* ---------- 실시간 구독 ---------- */
       let unsubTickets = null,
         unsubDay = null,
         currentClosedTypes = [],
         currentCounts = {},
+        currentLimits = { ...FRUIT_LIMITS },
         soldOutTypes = [];
 
       function subscribe(dateStr) {
@@ -1074,7 +1180,7 @@
         $("codeBar").style.display = dateStr === todayStr() ? "flex" : "none";
 
         unsubTickets = onSnapshot(
-          query(collection(db, "tickets"), where("date", "==", dateStr)),
+          ticketsColOf(dateStr),
           (snap) => {
             const rows = [];
             snap.forEach((d) => rows.push({ id: d.id, ...d.data() }));
@@ -1085,22 +1191,25 @@
         );
 
         unsubDay = onSnapshot(
-          doc(db, "counters", dateStr),
+          counterRefOf(dateStr),
           (snap) => {
             const data = snap.exists() ? snap.data() : {};
             currentClosedTypes = Array.isArray(data.closedTypes)
               ? data.closedTypes
               : [];
             currentCounts = data.counts || {};
+            // 그날의 한도 — 관리자가 수정한 값이 있으면 그것을 씁니다.
+            // (날짜가 바뀌면 문서가 새로 생기므로 자동으로 기본값으로 돌아갑니다)
+            currentLimits = { ...FRUIT_LIMITS, ...(data.limits || {}) };
             soldOutTypes = FRUITS.filter(
-              (f) => (currentCounts[f] || 0) >= FRUIT_LIMITS[f],
+              (f) => (currentCounts[f] || 0) >= (currentLimits[f] || 0),
             );
 
             // 오늘의 입장코드
             if (dateStr === todayStr()) {
               if (!data.entryCode) {
                 setDoc(
-                  doc(db, "counters", dateStr),
+                  counterRefOf(dateStr),
                   { entryCode: gen4() },
                   { merge: true },
                 ).catch((e) => console.error(e));
@@ -1152,7 +1261,7 @@
         if (!ok) return;
         try {
           await setDoc(
-            doc(db, "counters", todayStr()),
+            counterRefOf(todayStr()),
             { entryCode: gen4() },
             { merge: true },
           );
@@ -1174,8 +1283,8 @@
          취소된 예약의 케이크는 판매 수량에서 빠지므로 그만큼 다시 열립니다.
          (이미 같은 상태면 아무것도 하지 않아 중복 반영되지 않습니다) */
       async function setCancelled(r, cancelled, extra = {}) {
-        const tRef = doc(db, "tickets", r.id);
-        const cRef = doc(db, "counters", r.date || viewDate);
+        const tRef = ticketRefOf(r.date || viewDate, r.id);
+        const cRef = counterRefOf(r.date || viewDate);
         return await runTransaction(db, async (tx) => {
           const ts = await tx.get(tRef);
           if (!ts.exists()) return false;
@@ -1310,7 +1419,7 @@
         );
         if (!ok) return;
         try {
-          await updateDoc(doc(db, "tickets", r.id), {
+          await updateDoc(ticketRefOf(r.date || viewDate, r.id), {
             received: !r.received,
             receivedAt: !r.received ? serverTimestamp() : null,
           });
@@ -1328,8 +1437,8 @@
         );
         if (!ok) return;
         try {
-          const cRef = doc(db, "counters", r.date || viewDate);
-          const tRef = doc(db, "tickets", r.id);
+          const cRef = counterRefOf(r.date || viewDate);
+          const tRef = ticketRefOf(r.date || viewDate, r.id);
           const items = itemsOf(r);
           await runTransaction(db, async (tx) => {
             const cs = await tx.get(cRef);
@@ -1360,9 +1469,69 @@
           btn.classList.toggle("soldout", !manual && sold);
           const used = currentCounts[k] || 0;
           const state = manual ? "수동 마감" : sold ? "수량 소진" : "열려있음";
-          btn.innerHTML = `${NAME[k]}<span class="sub">${state} · ${used}/${FRUIT_LIMITS[k]}</span>`;
+          btn.innerHTML = `${NAME[k]}<span class="sub">${state} · ${used}/${currentLimits[k] ?? FRUIT_LIMITS[k]}</span>`;
         }
+        renderLimitInputs();
       }
+
+      /* ---------- 종류별 준비 수량 수정 ----------
+         counters/{점포}_{날짜} 문서의 limits 에 저장합니다.
+         날짜별 문서라서 하루가 지나면 자동으로 기본 수량으로 돌아갑니다. */
+      function renderLimitInputs() {
+        $("limitGrid").innerHTML = FRUITS.map(
+          (f) => `
+  <div class="limitRow">
+    <span class="nm">${NAME[f]}</span>
+    <input type="number" min="0" max="9999" inputmode="numeric" id="lim-${f}" />
+  </div>`,
+        ).join("");
+        FRUITS.forEach((f) => {
+          const el = $("lim-" + f);
+          if (el) el.value = currentLimits[f] ?? FRUIT_LIMITS[f];
+        });
+        const note = $("limitNote");
+        const below = FRUITS.filter(
+          (f) => (currentLimits[f] ?? 0) < (currentCounts[f] || 0),
+        );
+        note.classList.toggle("warn", below.length > 0);
+        note.textContent = below.length
+          ? `${below.map((f) => NAME[f]).join(", ")} : 이미 예약된 수량보다 적습니다. 해당 품목은 마감으로 표시됩니다.`
+          : "날짜가 바뀌면 기본 수량으로 자동 초기화됩니다.";
+      }
+
+      $("limitReset").addEventListener("click", () => {
+        FRUITS.forEach((f) => {
+          const el = $("lim-" + f);
+          if (el) el.value = FRUIT_LIMITS[f];
+        });
+      });
+
+      $("limitSave").addEventListener("click", async () => {
+        const limits = {};
+        for (const f of FRUITS) {
+          const raw = Number($("lim-" + f)?.value);
+          if (!Number.isFinite(raw) || raw < 0) {
+            alert(`${NAME[f]} 수량을 0 이상의 숫자로 입력해 주세요.`);
+            return;
+          }
+          limits[f] = Math.floor(raw);
+        }
+        const shrink = FRUITS.filter((f) => limits[f] < (currentCounts[f] || 0));
+        const ok = await confirmBox(
+          "수량 저장",
+          shrink.length
+            ? `${shrink.map((f) => NAME[f]).join(", ")} 은(는) 이미 예약된 수량보다 적어 바로 마감 처리됩니다. 저장할까요?`
+            : "오늘 준비 수량을 저장할까요? 손님 화면에 바로 반영됩니다.",
+        );
+        if (!ok) return;
+        try {
+          await setDoc(counterRefOf(viewDate), { limits }, { merge: true });
+          $("closeModal").classList.remove("on");
+        } catch (e) {
+          console.error(e);
+          alert("저장에 실패했습니다.");
+        }
+      });
       $("closeDayBtn").addEventListener("click", () => {
         renderCloseModal();
         $("closeModal").classList.add("on");
@@ -1384,7 +1553,7 @@
           : [...currentClosedTypes, k];
         try {
           await setDoc(
-            doc(db, "counters", viewDate),
+            counterRefOf(viewDate),
             { closedTypes: next },
             { merge: true },
           );

@@ -388,6 +388,32 @@
         line-height: 1.6;
         margin: 10px 2px 0;
       }
+      .subnote.strong {
+        color: var(--brand);
+        font-weight: 600;
+      }
+      .dayNotice {
+        border: 1px solid #f0c98a;
+        background: #fff6e6;
+        color: #8a5a00;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 13px;
+        line-height: 1.55;
+        font-weight: 600;
+        margin: 0 0 20px;
+      }
+      .resNotice {
+        margin: 14px 0 0;
+        padding: 11px 12px;
+        border-radius: 10px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.5;
+        text-align: center;
+      }
       .subnote.warn {
         color: #a9660a;
         font-weight: 500;
@@ -703,7 +729,7 @@
   </head>
   <body>
     <div class="wrap">
-      <header class="top"><img src="./src/logo.png" alt="" /></header>
+      <header class="top"><img src="/src/logo.png" alt="" /></header>
 
       <!-- 마감 안내 -->
       <section id="screen-closed" class="card closed fade hidden">
@@ -713,10 +739,12 @@
 
       <!-- STEP 1 : 전화번호 + 동의 -->
       <section id="screen-phone" class="card fade hidden">
+        <div class="dayNotice hidden" id="dayNotice"></div>
         <h2 class="title" id="t-phoneTitle"></h2>
         <label class="field">
           <span class="lab" id="t-phoneLabel"></span>
           <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" />
+          <p class="subnote" id="t-noticePhoneReal"></p>
         </label>
 
         <div class="consent">
@@ -754,6 +782,7 @@
             </div>
           </div>
           <p class="subnote" id="t-cakePriceNote"></p>
+          <p class="subnote strong" id="t-noticeMaxPerPerson"></p>
         </div>
 
         <div class="field">
@@ -858,8 +887,12 @@
         PICKUP_SLOT_END,
         PICKUP_SLOT_STEP_MIN,
         CANCEL_GRACE_MIN,
-      } from "./firebase-config.js?v=8";
-      import { detectLang, getMessages, LOCALE } from "./i18n.js?v=8";
+        RESERVE_CUTOFF_HOUR,
+        ONSITE_SALE_HOUR,
+        STORES,
+        DEFAULT_STORE,
+      } from "/firebase-config.js?v=9";
+      import { detectLang, getMessages, LOCALE } from "/i18n.js?v=9";
 
       /* ---------- 언어 ---------- */
       const LANG = detectLang();
@@ -917,7 +950,7 @@
       setHtml(
         "consentBody",
         T.consentBody(RETENTION_DAYS) +
-          `<br><a href="./privacy.html" target="_blank" rel="noopener">${T.privacyLink}</a>`,
+          `<br><a href="/privacy.html" target="_blank" rel="noopener">${T.privacyLink}</a>`,
       );
       setTxt("phoneBtn", T.confirm);
       setTxt("formBtn", T.next);
@@ -929,6 +962,11 @@
       setTxt("t-footer", T.footer(PICKUP_HOUR));
       setTxt("t-closedTitle", T.closedTitle);
       setTxt("t-closedBody", T.closedBody);
+      setTxt("t-noticePhoneReal", T.noticePhoneReal);
+      setTxt(
+        "t-noticeMaxPerPerson",
+        T.noticeMaxPerPerson(MAX_PER_TYPE * FRUITS.length, MAX_PER_TYPE),
+      );
       $("phone").placeholder = T.phonePlaceholder;
       $("entryCode").placeholder = T.codePlaceholder;
 
@@ -983,6 +1021,28 @@
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       }
       const digits = (s) => (s || "").replace(/\D/g, "");
+
+      /* ---------- 점포(매장) 판별 ----------
+         주소 경로(/gangnam)에서 먼저 찾고, 없으면 ?store=gangnam,
+         그래도 없으면 기본 점포를 씁니다. */
+      function detectStore() {
+        const seg = (location.pathname || "")
+          .split("/")
+          .filter(Boolean)
+          .map((x) => x.toLowerCase());
+        for (const x of seg) if (STORES[x]) return x;
+        const q = (new URLSearchParams(location.search).get("store") || "")
+          .trim()
+          .toLowerCase();
+        if (STORES[q]) return q;
+        return DEFAULT_STORE;
+      }
+      const STORE = detectStore();
+      const STORE_LABEL = (STORES[STORE] || {}).name || STORE;
+      // 번호표 : tickets / {점포} / {날짜} / {번호표}
+      const ticketRefOf = (date, id) => doc(db, "tickets", STORE, date, id);
+      // 수량·마감 : counters / {점포}_{날짜}
+      const counterRefOf = (date) => doc(db, "counters", `${STORE}_${date}`);
       function fmtPhone(s) {
         const d = digits(s);
         if (d.length >= 11)
@@ -1098,18 +1158,19 @@
       /* ---------- 오늘 상태(수동 마감 + 자동 소진) ---------- */
       let DAY = { closedTypes: [], counts: {} };
 
-      const remainOf = (f) =>
-        Math.max(0, (FRUIT_LIMITS[f] || 0) - (DAY.counts?.[f] || 0));
+      // 그날의 한도 — 관리자가 수정한 값이 있으면 그것을, 없으면 기본값을 씁니다.
+      const limitsOf = (data) => ({ ...FRUIT_LIMITS, ...(data?.limits || {}) });
+      const limitOf = (f) => limitsOf(DAY)[f] || 0;
+      const remainOf = (f) => Math.max(0, limitOf(f) - (DAY.counts?.[f] || 0));
       const maxQtyOf = (f) => Math.min(MAX_PER_TYPE, remainOf(f));
 
-      function soldOutList(counts) {
-        return FRUITS.filter(
-          (f) => (counts?.[f] || 0) >= (FRUIT_LIMITS[f] || Infinity),
-        );
+      function soldOutList(counts, data) {
+        const lim = limitsOf(data);
+        return FRUITS.filter((f) => (counts?.[f] || 0) >= (lim[f] || 0));
       }
       function blockedList(data) {
         const closed = Array.isArray(data?.closedTypes) ? data.closedTypes : [];
-        return [...new Set([...closed, ...soldOutList(data?.counts)])];
+        return [...new Set([...closed, ...soldOutList(data?.counts, data)])];
       }
       const allClosed = (list) => FRUITS.every((f) => list.includes(f));
 
@@ -1125,7 +1186,7 @@
       }
       async function refreshDay() {
         try {
-          const snap = await getDoc(doc(db, "counters", todayStr()));
+          const snap = await getDoc(counterRefOf(todayStr()));
           DAY = snap.exists() ? snap.data() : { closedTypes: [], counts: {} };
         } catch (e) {
           console.error(e);
@@ -1142,7 +1203,7 @@
       function watchDay() {
         try {
           onSnapshot(
-            doc(db, "counters", todayStr()),
+            counterRefOf(todayStr()),
             (snap) => {
               DAY = snap.exists()
                 ? snap.data()
@@ -1152,13 +1213,16 @@
 
               // 이미 번호표를 받은 손님의 화면은 건드리지 않습니다.
               if (isVisible($("screen-result"))) return;
+              renderDayNotice();
 
-              if (allClosed(list)) {
-                if (!isVisible($("screen-closed"))) showClosed();
-              } else if (isVisible($("screen-closed"))) {
-                hide($("screen-closed"));
+              // 예약 도중 전 품목이 마감되면 첫 화면으로 되돌립니다.
+              if (
+                allClosed(list) &&
+                (isVisible($("screen-form")) || isVisible($("screen-code")))
+              ) {
+                hide($("screen-form"));
+                hide($("screen-code"));
                 show($("screen-phone"));
-                show($("t-footer"));
                 restartFade($("screen-phone"));
               }
             },
@@ -1167,6 +1231,36 @@
         } catch (e) {
           console.error(e);
         }
+      }
+
+      /* ---------- 예약 마감 시간 ---------- */
+      // RESERVE_CUTOFF_HOUR(기본 19 = 오후 7시) 이후에는 새 예약을 받지 않습니다.
+      function afterCutoff(now = new Date()) {
+        return (
+          now.getHours() * 60 + now.getMinutes() >=
+          Math.round(RESERVE_CUTOFF_HOUR * 60)
+        );
+      }
+      // 새 번호로 예약을 시작할 수 있는 상태인지
+      function newReservationBlocked() {
+        if (afterCutoff()) return "cutoff";
+        if (allClosed(blockedList(DAY))) return "soldout";
+        return "";
+      }
+      function renderDayNotice() {
+        const el = $("dayNotice");
+        const why = newReservationBlocked();
+        if (!why) {
+          el.classList.add("hidden");
+          el.innerHTML = "";
+          return;
+        }
+        const head =
+          why === "cutoff"
+            ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
+            : T.noticeSoldOut;
+        el.innerHTML = `${head}<br>${T.noticeOnsite(T.hourFmt(ONSITE_SALE_HOUR))}<br>${T.lookupOnly}`;
+        el.classList.remove("hidden");
       }
 
       /* ---------- STEP 1 : 전화번호 + 동의 ---------- */
@@ -1215,10 +1309,17 @@
             await handleRevisit(existing);
             return;
           }
-          const list = await refreshDay();
+          await refreshDay();
           busy(false);
-          if (allClosed(list)) {
-            showClosed();
+          const why = newReservationBlocked();
+          if (why) {
+            // 새 번호는 예약을 시작할 수 없지만, 화면은 그대로 두어
+            // 기존 번호표 조회는 계속할 수 있게 합니다.
+            renderDayNotice();
+            $("phoneHint").textContent =
+              why === "cutoff"
+                ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
+                : T.noticeSoldOut;
             return;
           }
           hide($("screen-phone"));
@@ -1234,7 +1335,7 @@
       // 자기 번호표 문서 1개만 직접 열어봅니다. (전체 목록 조회는 규칙에서 차단)
       async function findTodayTicket(phone) {
         const id = ticketId(todayStr(), phone);
-        const snap = await getDoc(doc(db, "tickets", id));
+        const snap = await getDoc(ticketRefOf(todayStr(), id));
         return snap.exists() ? { id, ...snap.data() } : null;
       }
 
@@ -1434,8 +1535,18 @@
             await handleRevisit(result.existing);
             return;
           }
-          if (result.blocked === "full") {
-            showClosed();
+          if (result.blocked === "full" || result.blocked === "cutoff") {
+            // 마감·예약 종료 : 첫 화면으로 돌려보내고 안내를 띄웁니다.
+            await refreshDay();
+            hide($("screen-code"));
+            hide($("screen-form"));
+            show($("screen-phone"));
+            restartFade($("screen-phone"));
+            renderDayNotice();
+            $("phoneHint").textContent =
+              result.blocked === "cutoff"
+                ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
+                : T.noticeSoldOut;
             return;
           }
           if (result.blocked === "type") {
@@ -1470,8 +1581,8 @@
       async function createTicket({ phone, items, bags, pickupAt, code }) {
         const date = todayStr();
         const id = ticketId(date, phone);
-        const counterRef = doc(db, "counters", date);
-        const ticketRef = doc(db, "tickets", id);
+        const counterRef = counterRefOf(date);
+        const ticketRef = ticketRefOf(date, id);
         return await runTransaction(db, async (tx) => {
           const cs = await tx.get(counterRef);
           const ts = await tx.get(ticketRef);
@@ -1479,6 +1590,7 @@
           if (ts.exists()) return { existing: { id, ...ts.data() } };
           const data = cs.exists() ? cs.data() : {};
 
+          if (afterCutoff()) return { blocked: "cutoff" };
           const blocked = blockedList(data);
           if (allClosed(blocked)) return { blocked: "full" };
 
@@ -1487,7 +1599,7 @@
             const n = items[f] || 0;
             if (!n) continue;
             if (blocked.includes(f)) return { blocked: "type" };
-            if ((counts[f] || 0) + n > (FRUIT_LIMITS[f] || 0))
+            if ((counts[f] || 0) + n > (limitsOf(data)[f] || 0))
               return { blocked: "type" };
             counts[f] = (counts[f] || 0) + n;
           }
@@ -1527,8 +1639,8 @@
       /* 예약을 취소 처리하면서 그날의 판매 수량에서도 빼줍니다.
          → 취소된 만큼 해당 과일이 다시 열립니다. (이미 취소된 건은 건드리지 않음) */
       async function releaseCancelled(t) {
-        const tRef = doc(db, "tickets", t.id);
-        const cRef = doc(db, "counters", t.date || todayStr());
+        const tRef = ticketRefOf(t.date || todayStr(), t.id);
+        const cRef = counterRefOf(t.date || todayStr());
         return await runTransaction(db, async (tx) => {
           const ts = await tx.get(tRef);
           if (!ts.exists()) return false;
@@ -1584,7 +1696,7 @@
         setTxt("resNote", T.noteReceived);
         const box = $("doneBox");
         if (box) box.remove();
-        updateDoc(doc(db, "tickets", id), {
+        updateDoc(ticketRefOf(todayStr(), id), {
           received: true,
           receivedAt: serverTimestamp(),
           phone: "",
@@ -1647,6 +1759,7 @@
       <span class="tv">${T.priceFmt(o.total ?? calcTotal(items, o.bags))}</span>
     </div>
     <p class="note" id="resNote">${note}</p>
+    ${o.state === "received" || o.state === "cancelled" || o.state === "already" ? "" : `<p class="resNotice">${T.noticeShowScreen}</p>`}
     ${doneHtml}
   `;
         if (showDone && ready) {
@@ -1673,16 +1786,15 @@
       /* ---------- 시작 ---------- */
       async function start() {
         try {
-          const list = await refreshDay();
+          await refreshDay();
           watchDay();
-          if (allClosed(list)) {
-            busy(false);
-            show($("screen-closed"));
-            return;
-          }
         } catch (e) {
           console.error(e);
         }
+        // 모두 마감이거나 예약 시간이 지났어도, 이미 받은 번호표는
+        // 조회할 수 있어야 하므로 전화번호 화면은 항상 띄웁니다.
+        renderDayNotice();
+        setInterval(renderDayNotice, 60000);
         busy(false);
         show($("screen-phone"));
         show($("t-footer"));

@@ -17,6 +17,34 @@ export const firebaseConfig = {
 //     주소가 바뀌면 여기만 고치고 관리자 화면에서 QR을 다시 저장·인쇄하면 됩니다.
 export const CUSTOMER_SITE_URL = "https://trj-agjak.chaalsdn0217.workers.dev/";
 
+// 1-2) 매장(점포) 목록  ★ 매장을 늘릴 때 여기만 추가하면 됩니다
+//     키(gangnam)가 데이터 저장 위치이자 주소에 쓰이는 값입니다.
+//       · 번호표 저장 위치 : tickets / {점포키} / {날짜} / {번호표}
+//       · 손님 주소        : https://주소/{점포키}   (예: /gangnam)
+//       · adminIds        : 이 아이디로 로그인하면 해당 점포 데이터만 보입니다
+export const STORES = {
+  gangnam: {
+    name: "강남직영점",
+    adminIds: ["staff"],
+  },
+  // 예시) 매장을 늘릴 때는 아래처럼 한 덩어리를 복사해서 추가하세요.
+  // hongdae: { name: "홍대점", adminIds: ["hongdae"] },
+};
+
+// 주소에 점포가 없을 때 사용할 기본 점포
+export const DEFAULT_STORE = "gangnam";
+
+// 관리자 아이디로 점포를 찾습니다. (없으면 기본 점포)
+export function storeOfAdminId(id) {
+  const key = String(id || "")
+    .trim()
+    .toLowerCase();
+  for (const [store, cfg] of Object.entries(STORES))
+    if ((cfg.adminIds || []).some((x) => String(x).toLowerCase() === key))
+      return store;
+  return DEFAULT_STORE;
+}
+
 // 2) 매장 이름 (화면 상단에 표시됩니다)
 export const STORE_NAME = "TRJ";
 
@@ -85,6 +113,13 @@ export const ICEPACK_INCLUDED = 2;
 export const PICKUP_SLOT_START = 14;
 export const PICKUP_SLOT_END = 19;
 export const PICKUP_SLOT_STEP_MIN = 30;
+
+// 13-1) 이 시각 이후에는 새 예약을 받지 않습니다. (기존 번호표 조회는 계속 가능)
+//      기본 19 = 오후 7시. 소수점도 가능합니다. (19.5 = 7시 30분)
+export const RESERVE_CUTOFF_HOUR = 19;
+
+// 13-2) 미수령 예약을 일괄 정리해 현장 판매로 돌리는 시각 (안내 문구용)
+export const ONSITE_SALE_HOUR = 20;
 
 // 14) 선택한 픽업 시간이 이 분(分)만큼 지나도 수령하지 않으면
 //     예약이 '취소됨'으로 바뀌고 전화번호가 삭제됩니다.

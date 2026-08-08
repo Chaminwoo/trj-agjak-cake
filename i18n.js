@@ -98,6 +98,25 @@ export const MESSAGES = {
     closedBody: "매일 오전 8시에 예약 가능하니 다음에 찾아주세요.",
     typeClosedError: "선택하신 종류는 마감되었습니다. 다시 선택해 주세요.",
     soldOutBadge: "마감",
+
+    // ---- 공지 문구 ----
+    hourFmt: (h) => {
+      const hh = Math.floor(h),
+        mm = Math.round((h - hh) * 60);
+      const ap = hh < 12 ? "오전" : "오후";
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      return `${ap} ${h12}시${mm ? ` ${mm}분` : ""}`;
+    },
+    noticePhoneReal: "실제 연락이 가능한 번호로 입력해 주세요.",
+    noticeMaxPerPerson: (total, per) =>
+      `1인당 총 ${total}개까지 구매하실 수 있습니다. (품목별 ${per}개씩)`,
+    noticeShowScreen: "픽업 시 이 예약 화면을 직원에게 보여 주세요.",
+    noticeSoldOut: "금일 케이크는 모두 마감되었습니다.",
+    noticeCutoff: (h) =>
+      `${h} 이후에는 예약이 마감되어 현장 구매만 가능합니다.`,
+    noticeOnsite: (h) =>
+      `${h} 이후 취소된 예약분은 매장에서 현장 판매합니다.`,
+    lookupOnly: "이미 발급받으신 번호표는 번호를 입력하면 확인하실 수 있습니다.",
   },
 
   en: {
@@ -198,6 +217,26 @@ export const MESSAGES = {
     closedBody: "Reservations open daily at 8:00 AM. Please visit us again.",
     typeClosedError: "That item is no longer available. Please choose again.",
     soldOutBadge: "Sold out",
+
+    // ---- Notices ----
+    hourFmt: (h) => {
+      const hh = Math.floor(h),
+        mm = Math.round((h - hh) * 60);
+      const ap = hh < 12 ? "AM" : "PM";
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      return `${h12}:${String(mm).padStart(2, "0")} ${ap}`;
+    },
+    noticePhoneReal: "Please enter a number we can actually reach you at.",
+    noticeMaxPerPerson: (total, per) =>
+      `Up to ${total} cakes per person (${per} of each flavour).`,
+    noticeShowScreen: "Please show this screen to our staff at pickup.",
+    noticeSoldOut: "All cakes for today are sold out.",
+    noticeCutoff: (h) =>
+      `Reservations close at ${h}. After that, in-store purchase only.`,
+    noticeOnsite: (h) =>
+      `Reservations cancelled after ${h} are sold in store.`,
+    lookupOnly:
+      "If you already have a ticket, enter your number to view it.",
   },
 
   ja: {
@@ -296,6 +335,25 @@ export const MESSAGES = {
       "毎朝8時からご予約いただけます。またのお越しをお待ちしております。",
     typeClosedError: "選択した種類は受付終了しました。もう一度お選びください。",
     soldOutBadge: "終了",
+
+    // ---- お知らせ ----
+    hourFmt: (h) => {
+      const hh = Math.floor(h),
+        mm = Math.round((h - hh) * 60);
+      const ap = hh < 12 ? "午前" : "午後";
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      return `${ap}${h12}時${mm ? `${mm}分` : ""}`;
+    },
+    noticePhoneReal: "実際に連絡がつく番号をご入力ください。",
+    noticeMaxPerPerson: (total, per) =>
+      `お一人様あたり合計${total}個まで（種類ごとに${per}個ずつ）ご購入いただけます。`,
+    noticeShowScreen: "お受け取りの際、この予約画面をスタッフにお見せください。",
+    noticeSoldOut: "本日のケーキはすべて完売いたしました。",
+    noticeCutoff: (h) =>
+      `${h}以降は予約を締め切り、店頭販売のみとなります。`,
+    noticeOnsite: (h) => `${h}以降のキャンセル分は店頭で販売いたします。`,
+    lookupOnly:
+      "すでに発行された整理券は、番号を入力すると確認できます。",
   },
 
   zh: {
@@ -390,6 +448,23 @@ export const MESSAGES = {
     closedBody: "每天上午8点开放预约，欢迎下次光临。",
     typeClosedError: "您选择的种类已停止领取，请重新选择。",
     soldOutBadge: "已结束",
+
+    // ---- 公告 ----
+    hourFmt: (h) => {
+      const hh = Math.floor(h),
+        mm = Math.round((h - hh) * 60);
+      const ap = hh < 12 ? "上午" : "下午";
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      return `${ap}${h12}点${mm ? `${mm}分` : ""}`;
+    },
+    noticePhoneReal: "请填写可以实际联系到您的号码。",
+    noticeMaxPerPerson: (total, per) =>
+      `每人最多可购买 ${total} 个（每种口味 ${per} 个）。`,
+    noticeShowScreen: "取货时请向店员出示此预约页面。",
+    noticeSoldOut: "今日蛋糕已全部售罄。",
+    noticeCutoff: (h) => `${h}之后停止预约，仅可现场购买。`,
+    noticeOnsite: (h) => `${h}之后取消的预约将在门店现场销售。`,
+    lookupOnly: "已领取号码牌的顾客，输入手机号即可查看。",
   },
 };
 
