@@ -734,7 +734,6 @@
 
         <div class="hint" id="phoneHint"></div>
         <button class="btn" id="phoneBtn"></button>
-        <button type="button" class="btn ghost" id="findBtn"></button>
       </section>
 
       <!-- STEP 2 : 종류 + 포장 + 픽업 시간 -->
@@ -927,7 +926,6 @@
       setTxt("t-entryCodeTitle", T.codeLabel);
       setTxt("t-codeLabel", T.codeLabel);
       setTxt("phoneBtn", T.btnReserve);
-      setTxt("findBtn", T.btnFind);
       setTxt("formBtn", T.next);
       setTxt("formBack", T.back);
       setTxt("codeBtn", T.issue);
@@ -1260,7 +1258,6 @@
         if (e.key === "Enter") onReserve();
       });
       $("phoneBtn").addEventListener("click", onReserve);
-      $("findBtn").addEventListener("click", onFind);
 
       let currentCode = "";
 
@@ -1277,7 +1274,11 @@
         return c;
       }
 
-      /* 예약하기 — 이미 쓰인 암호면 다른 암호를 입력하도록 막습니다. */
+      /* 암호를 넣고 누르면 —
+         1) 그 암호로 오늘 예약이 있으면 번호표를 보여 주고 (조회)
+         2) 없으면 새로 예약을 시작합니다.
+         단, 예약 마감 시간이 지났거나 전부 소진된 경우에는
+         새 예약만 막고 조회는 그대로 됩니다. */
       async function onReserve() {
         const c = readCode();
         if (!c) return;
@@ -1286,9 +1287,8 @@
           const existing = await findTodayTicket(c);
           if (existing) {
             busy(false);
-            $("phoneHint").textContent = T.userCodeTaken;
-            codeEl2.focus();
-            codeEl2.select();
+            currentCode = c;
+            await handleRevisit(existing);
             return;
           }
           await refreshDay();
@@ -1306,27 +1306,6 @@
           hide($("screen-phone"));
           show($("screen-form"));
           restartFade($("screen-form"));
-        } catch (e) {
-          busy(false);
-          console.error(e);
-          $("phoneHint").textContent = T.errorGeneric;
-        }
-      }
-
-      /* 예약 조회 — 암호로 자기 번호표를 찾습니다. */
-      async function onFind() {
-        const c = readCode();
-        if (!c) return;
-        busy(true);
-        try {
-          const existing = await findTodayTicket(c);
-          busy(false);
-          if (!existing) {
-            $("phoneHint").textContent = T.userCodeNotFound;
-            return;
-          }
-          currentCode = c;
-          await handleRevisit(existing);
         } catch (e) {
           busy(false);
           console.error(e);

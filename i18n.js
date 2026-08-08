@@ -7,20 +7,16 @@ export const MESSAGES = {
   ko: {
     htmlLang: "ko",
     pageTitle: "번호표",
-    codeTitleNew: "사용할 암호를 정해 주세요",
-    codeTitleFind: "예약하실 때 정하신 암호를 입력해 주세요",
+    codeTitleNew: "사용하실 암호를 입력해 주세요",
     userCodeLabel: "사용자 지정 암호",
     userCodePlaceholder: "예) ABB990",
     userCodeInvalid: (min, max) =>
       `영문 대문자와 숫자로 ${min}~${max}자리를 입력해 주세요.`,
     userCodeTaken:
       "이미 다른 손님이 사용 중입니다. 다른 암호를 입력해 주세요.",
-    userCodeNotFound:
-      "해당 암호로 예약된 번호표가 없습니다. 암호를 다시 확인해 주세요.",
     userCodeHelp:
-      "수령하실 때 이 암호로 번호표를 확인합니다. 잊지 마시고 기억해 주세요.",
+      "처음이시면 원하시는 암호를 정해 주세요. 이미 예약하셨다면 같은 암호로 번호표를 확인하실 수 있습니다.",
     btnReserve: "예약하기",
-    btnFind: "예약 조회",
     confirm: "확인",
     infoTitle: "정보를 입력해 주세요",
 
@@ -123,20 +119,16 @@ export const MESSAGES = {
   en: {
     htmlLang: "en",
     pageTitle: "Ticket",
-    codeTitleNew: "Choose your own code",
-    codeTitleFind: "Enter the code you chose",
+    codeTitleNew: "Enter your code",
     userCodeLabel: "Your code",
     userCodePlaceholder: "e.g. ABB990",
     userCodeInvalid: (min, max) =>
       `Please use ${min}-${max} characters, capital letters and numbers only.`,
     userCodeTaken:
       "This code is already in use by another guest. Please choose a different one.",
-    userCodeNotFound:
-      "No reservation found for that code. Please check it and try again.",
     userCodeHelp:
-      "You will use this code to collect your cake. Please remember it.",
+      "First time? Choose any code you like. Already reserved? Enter the same code to see your ticket.",
     btnReserve: "Reserve",
-    btnFind: "Find my ticket",
     confirm: "Continue",
     infoTitle: "Enter your details",
     typeLabel: "Choose one or more",
@@ -237,20 +229,16 @@ export const MESSAGES = {
   ja: {
     htmlLang: "ja",
     pageTitle: "整理券",
-    codeTitleNew: "ご希望の暗証番号をお決めください",
-    codeTitleFind: "ご予約時の暗証番号を入力してください",
+    codeTitleNew: "暗証番号をご入力ください",
     userCodeLabel: "暗証番号",
     userCodePlaceholder: "例) ABB990",
     userCodeInvalid: (min, max) =>
       `英大文字と数字で${min}〜${max}文字を入力してください。`,
     userCodeTaken:
       "この暗証番号はすでに他のお客様が使用中です。別の番号をご入力ください。",
-    userCodeNotFound:
-      "その暗証番号での予約が見つかりません。もう一度ご確認ください。",
     userCodeHelp:
-      "お受け取りの際にこの暗証番号で確認します。お忘れなくお控えください。",
+      "初めての方はご希望の暗証番号をお決めください。ご予約済みの方は同じ暗証番号で整理券を確認できます。",
     btnReserve: "予約する",
-    btnFind: "予約照会",
     confirm: "確認",
     infoTitle: "情報を入力してください",
     typeLabel: "種類（複数選択可）",
@@ -353,17 +341,14 @@ export const MESSAGES = {
   zh: {
     htmlLang: "zh",
     pageTitle: "号码牌",
-    codeTitleNew: "请设置您的专属密码",
-    codeTitleFind: "请输入预约时设置的密码",
+    codeTitleNew: "请输入您的专属密码",
     userCodeLabel: "专属密码",
     userCodePlaceholder: "例) ABB990",
     userCodeInvalid: (min, max) =>
       `请输入 ${min}~${max} 位大写英文字母和数字。`,
     userCodeTaken: "该密码已被其他顾客使用，请更换其他密码。",
-    userCodeNotFound: "未找到该密码对应的预约，请重新确认。",
-    userCodeHelp: "取货时将使用此密码确认，请务必牢记。",
+    userCodeHelp: "首次请设置您想要的密码；已预约的顾客输入相同密码即可查看号码牌。",
     btnReserve: "预约",
-    btnFind: "查询预约",
     confirm: "确认",
     infoTitle: "请填写信息",
     typeLabel: "种类（可多选）",
