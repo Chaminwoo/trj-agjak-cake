@@ -864,6 +864,14 @@
           </p>
         </div>
 
+        <div class="limitBox">
+          <div class="limitHead">
+            <span>개인정보 파기</span>
+            <button class="btn line sm" id="purgeBtn">지금 일괄 파기</button>
+          </div>
+          <p class="limitNote" id="purgeNote"></p>
+        </div>
+
         <div class="mbtns">
           <button class="btn gray" id="closeModalClose">닫기</button>
           <button class="btn" id="limitSave">수량 저장</button>
@@ -898,6 +906,7 @@
         RETENTION_DAYS,
         ADMIN_ID_DOMAIN,
         CANCEL_GRACE_MIN,
+        PURGE_HOUR,
         CUSTOMER_SITE_URL,
         STORES,
         DEFAULT_STORE,
@@ -1167,6 +1176,7 @@
       /* ---------- 실시간 구독 ---------- */
       let unsubTickets = null,
         unsubDay = null,
+        lastRows = [],
         currentClosedTypes = [],
         currentCounts = {},
         currentLimits = { ...FRUIT_LIMITS },
@@ -1279,6 +1289,40 @@
         return parts.length ? parts.join(" · ") : "—";
       }
 
+      /* ---------- 전화번호 일괄 파기 ----------
+         PURGE_HOUR(기본 22 = 밤 10시) 이후, 그날 예약자 전화번호를 한 번에 지웁니다.
+         수령 여부·수량 등 통계는 그대로 남고 전화번호만 되돌릴 수 없게 삭제됩니다. */
+      const purgeTimeReached = (now = new Date()) =>
+        now.getHours() >= PURGE_HOUR;
+      let purgingNow = false;
+
+      async function purgeDay(dateStr, rows, { silent = false } = {}) {
+        if (purgingNow) return 0;
+        purgingNow = true;
+        try {
+          const targets = (rows || []).filter(
+            (r) => !r.personalDeleted && String(r.phone || "").trim() !== "",
+          );
+          let n = 0;
+          for (const r of targets) {
+            try {
+              await updateDoc(ticketRefOf(dateStr, r.id), {
+                phone: "",
+                personalDeleted: true,
+                purgedAt: serverTimestamp(),
+              });
+              n++;
+            } catch (e) {
+              console.error("파기 실패", r.id, e);
+            }
+          }
+          if (n && !silent) console.info(`전화번호 ${n}건을 파기했습니다.`);
+          return n;
+        } finally {
+          purgingNow = false;
+        }
+      }
+
       /* 예약을 취소/취소해제 하면서 그날의 과일 수량도 같이 되돌립니다.
          취소된 예약의 케이크는 판매 수량에서 빠지므로 그만큼 다시 열립니다.
          (이미 같은 상태면 아무것도 하지 않아 중복 반영되지 않습니다) */
@@ -1308,15 +1352,13 @@
         });
       }
 
-      // 픽업 시간이 지난 예약을 '취소됨'으로 바꾸고 전화번호를 파기합니다.
+      // 픽업 시간이 지난 예약을 '취소됨'으로 바꿉니다.
+      // (전화번호는 지우지 않고, 그날 밤 PURGE_HOUR 에 일괄 파기합니다)
       async function autoCancelExpired(rows) {
         const targets = rows.filter((r) => isExpired(r));
         for (const r of targets) {
           try {
-            await setCancelled(r, true, {
-              phone: "",
-              personalDeleted: true,
-            });
+            await setCancelled(r, true);
           } catch (e) {
             console.error("자동 취소 실패", e);
           }
@@ -1325,6 +1367,10 @@
 
       function render(rows) {
         autoCancelExpired(rows);
+        lastRows = rows;
+        // 파기 시각이 지났고 오늘 화면이면 자동으로 전화번호를 파기합니다.
+        if (viewDate === todayStr() && purgeTimeReached())
+          purgeDay(viewDate, rows, { silent: true });
 
         const tb = $("tbody");
         tb.innerHTML = "";
@@ -1472,6 +1518,7 @@
           btn.innerHTML = `${NAME[k]}<span class="sub">${state} · ${used}/${currentLimits[k] ?? FRUIT_LIMITS[k]}</span>`;
         }
         renderLimitInputs();
+        renderPurgeNote();
       }
 
       /* ---------- 종류별 준비 수량 수정 ----------
@@ -1498,6 +1545,35 @@
           ? `${below.map((f) => NAME[f]).join(", ")} : 이미 예약된 수량보다 적습니다. 해당 품목은 마감으로 표시됩니다.`
           : "날짜가 바뀌면 기본 수량으로 자동 초기화됩니다.";
       }
+
+      function renderPurgeNote() {
+        const el = $("purgeNote");
+        if (!el) return;
+        const left = lastRows.filter(
+          (r) => !r.personalDeleted && String(r.phone || "").trim() !== "",
+        ).length;
+        el.textContent = left
+          ? `${viewDate} 전화번호 ${left}건이 남아 있습니다. 매일 밤 ${PURGE_HOUR}시 이후 관리자 페이지가 열리면 자동으로 파기됩니다.`
+          : `${viewDate} 남아 있는 전화번호가 없습니다.`;
+      }
+
+      $("purgeBtn").addEventListener("click", async () => {
+        const left = lastRows.filter(
+          (r) => !r.personalDeleted && String(r.phone || "").trim() !== "",
+        ).length;
+        if (!left) {
+          alert("파기할 전화번호가 없습니다.");
+          return;
+        }
+        const ok = await confirmBox(
+          "전화번호 일괄 파기",
+          `${viewDate} 예약자 전화번호 ${left}건을 모두 지웁니다. 되돌릴 수 없습니다. 진행할까요?`,
+          true,
+        );
+        if (!ok) return;
+        const n = await purgeDay(viewDate, lastRows);
+        alert(`전화번호 ${n}건을 파기했습니다.`);
+      });
 
       $("limitReset").addEventListener("click", () => {
         FRUITS.forEach((f) => {

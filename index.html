@@ -894,6 +894,7 @@
         PICKUP_SLOT_END,
         PICKUP_SLOT_STEP_MIN,
         CANCEL_GRACE_MIN,
+        PURGE_HOUR,
         RESERVE_CUTOFF_HOUR,
         ONSITE_SALE_HOUR,
         STORES,
@@ -1691,8 +1692,6 @@
           tx.update(tRef, {
             cancelled: true,
             cancelledAt: serverTimestamp(),
-            phone: "",
-            personalDeleted: true,
           });
           return true;
         });
@@ -1730,11 +1729,11 @@
         setTxt("resNote", T.noteReceived);
         const box = $("doneBox");
         if (box) box.remove();
+        // 전화번호는 이 자리에서 지우지 않고, 그날 밤 PURGE_HOUR 에
+        // 관리자 화면에서 일괄 파기합니다.
         updateDoc(ticketRefOf(todayStr(), id), {
           received: true,
           receivedAt: serverTimestamp(),
-          phone: "",
-          personalDeleted: true,
         }).catch((e) => console.error(e));
       }
 
@@ -1775,7 +1774,7 @@
           showDone && ready
             ? `<div id="doneBox">
       <button class="btn" id="doneBtn">${T.pickupDone}</button>
-      <p class="doneNote">${T.pickupDoneNote}</p>
+      <p class="doneNote">${T.pickupDoneNote(T.hourFmt(PURGE_HOUR))}</p>
     </div>`
             : "";
 

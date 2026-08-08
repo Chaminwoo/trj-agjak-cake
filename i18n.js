@@ -19,7 +19,7 @@ export const MESSAGES = {
     consentBody: (days) =>
       `· 수집 항목 : 휴대폰 번호<br>` +
       `· 이용 목적 : 케이크 예약 번호표 발급 및 수령 확인<br>` +
-      `· 보유 기간 : 픽업 완료 또는 예약 취소 시 즉시 파기 (미방문 시 ${days}일 후 파기)<br>` +
+      `· 보유 기간 : 예약 당일 영업 종료 후 일괄 파기 (미방문 기록은 ${days}일 후 파기)<br>` +
       `· 동의를 거부하실 수 있으나, 거부하시면 번호표 발급이 불가합니다.`,
     consentRequired: "개인정보 수집·이용에 동의해 주세요.",
     privacyLink: "개인정보 처리방침",
@@ -86,11 +86,11 @@ export const MESSAGES = {
     footer: (h) => `케이크를 받으신 뒤 '픽업 완료'를 눌러 주세요.`,
 
     pickupDone: "픽업 완료",
-    pickupDoneNote: "픽업 완료 시 개인정보는 자동으로 파기됩니다.",
+    pickupDoneNote: (h) => `입력하신 전화번호는 ${h} 이후 일괄 파기됩니다.`,
     pickupNotYet: "오후 2시부터 픽업 완료 처리가 가능합니다.",
     pickupConfirmTitle: "픽업을 완료할까요?",
     pickupConfirmMsg:
-      "케이크를 받으신 뒤에 눌러 주세요. 완료 후에는 되돌릴 수 없으며, 입력하신 전화번호는 즉시 파기됩니다.",
+      "케이크를 받으신 뒤에 눌러 주세요. 완료 후에는 되돌릴 수 없습니다.",
 
     errorGeneric: "오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
     errorIssue: "발급 중 오류가 발생했습니다. 다시 시도해 주세요.",
@@ -135,7 +135,7 @@ export const MESSAGES = {
     consentBody: (days) =>
       `· Data collected : mobile phone number<br>` +
       `· Purpose : issuing and verifying your cake reservation ticket<br>` +
-      `· Retention : erased as soon as pickup is completed or the reservation is cancelled (otherwise after ${days} days)<br>` +
+      `· Retention : erased together after closing on the day of your reservation (unvisited records after ${days} days)<br>` +
       `· You may refuse, but a ticket cannot be issued without consent.`,
     consentRequired:
       "Please agree to the collection and use of your personal data.",
@@ -204,12 +204,12 @@ export const MESSAGES = {
     footer: (h) => `Please tap 'Pickup complete' after receiving your cake.`,
 
     pickupDone: "Pickup complete",
-    pickupDoneNote:
-      "Your personal data is erased automatically once pickup is completed.",
+    pickupDoneNote: (h) =>
+      `Your phone number is erased in a single batch after ${h}.`,
     pickupNotYet: "Pickup can be completed from 2:00 PM.",
     pickupConfirmTitle: "Complete pickup?",
     pickupConfirmMsg:
-      "Please tap this only after receiving your cake. This cannot be undone, and your phone number will be erased immediately.",
+      "Please tap this only after receiving your cake. This cannot be undone.",
 
     errorGeneric: "Something went wrong. Please try again.",
     errorIssue: "Could not issue the ticket. Please try again.",
@@ -254,7 +254,7 @@ export const MESSAGES = {
     consentBody: (days) =>
       `· 収集項目 : 携帯電話番号<br>` +
       `· 利用目的 : ケーキ予約の整理券発行および受取確認<br>` +
-      `· 保有期間 : 受取完了または予約取消の時点で即時破棄（未来店の場合は${days}日後に破棄）<br>` +
+      `· 保有期間 : 予約当日の営業終了後に一括破棄（未来店の記録は${days}日後に破棄）<br>` +
       `· 同意を拒否できますが、その場合は整理券を発行できません。`,
     consentRequired: "個人情報の収集・利用にご同意ください。",
     privacyLink: "プライバシーポリシー",
@@ -321,11 +321,11 @@ export const MESSAGES = {
     footer: (h) => `ケーキを受け取ったら「受取完了」を押してください。`,
 
     pickupDone: "受取完了",
-    pickupDoneNote: "受取完了と同時に個人情報は自動的に破棄されます。",
+    pickupDoneNote: (h) => `ご入力の電話番号は${h}以降に一括で破棄されます。`,
     pickupNotYet: "午後2時から受取完了の操作ができます。",
     pickupConfirmTitle: "受取を完了しますか？",
     pickupConfirmMsg:
-      "ケーキを受け取ってから押してください。完了後は元に戻せず、入力された電話番号は直ちに破棄されます。",
+      "ケーキを受け取ってから押してください。完了後は元に戻せません。",
 
     errorGeneric:
       "エラーが発生しました。しばらくしてからもう一度お試しください。",
@@ -371,7 +371,7 @@ export const MESSAGES = {
     consentBody: (days) =>
       `· 收集项目 : 手机号码<br>` +
       `· 使用目的 : 蛋糕预约号码牌发放及取货确认<br>` +
-      `· 保留期限 : 取货完成或预约取消时立即销毁（未到店则${days}天后销毁）<br>` +
+      `· 保留期限 : 预约当日营业结束后统一销毁（未到店的记录${days}天后销毁）<br>` +
       `· 您可以拒绝同意，但拒绝后将无法领取号码牌。`,
     consentRequired: "请同意收集和使用个人信息。",
     privacyLink: "隐私政策",
@@ -436,11 +436,11 @@ export const MESSAGES = {
     footer: (h) => `取到蛋糕后请点击"取货完成"。`,
 
     pickupDone: "取货完成",
-    pickupDoneNote: "取货完成后，个人信息将自动销毁。",
+    pickupDoneNote: (h) => `您填写的手机号码将在${h}之后统一销毁。`,
     pickupNotYet: "下午2点起可以进行取货完成操作。",
     pickupConfirmTitle: "确认完成取货？",
     pickupConfirmMsg:
-      "请在拿到蛋糕后再点击。完成后无法撤销，您填写的手机号码将立即销毁。",
+      "请在拿到蛋糕后再点击。完成后无法撤销。",
 
     errorGeneric: "发生错误，请稍后再试。",
     errorIssue: "领取失败，请重试。",
