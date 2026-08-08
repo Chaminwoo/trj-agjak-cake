@@ -107,7 +107,10 @@ export const MESSAGES = {
     noticeMaxPerPerson: (total, per) =>
       `1인당 총 ${total}개까지 구매하실 수 있습니다. (품목별 ${per}개씩)`,
     noticeShowScreen: "픽업 시 이 예약 화면을 직원에게 보여 주세요.",
-    noticeSoldOut: "금일 케이크는 모두 마감되었습니다.",
+    noticeSoldOut: "금일 수량은 마감되었습니다.",
+    fruitCount: (name, n) => `${name} ${n}개`,
+    noticeOnsiteRemain: (list) =>
+      `남은 케이크는 매장에서 현장 구매하실 수 있습니다.<br>${list}`,
     noticeCutoff: (h) =>
       `${h} 이후에는 예약이 마감되어 현장 구매만 가능합니다.`,
     noticeOnsite: (h) => `${h} 이후 취소된 예약분은 매장에서 현장 판매합니다.`,
@@ -218,7 +221,10 @@ export const MESSAGES = {
     noticeMaxPerPerson: (total, per) =>
       `Up to ${total} cakes per person (${per} of each flavour).`,
     noticeShowScreen: "Please show this screen to our staff at pickup.",
-    noticeSoldOut: "All cakes for today are sold out.",
+    noticeSoldOut: "Today's stock is sold out.",
+    fruitCount: (name, n) => `${name} ${n}`,
+    noticeOnsiteRemain: (list) =>
+      `The remaining cakes can be bought in store.<br>${list}`,
     noticeCutoff: (h) =>
       `Reservations close at ${h}. After that, in-store purchase only.`,
     noticeOnsite: (h) => `Reservations cancelled after ${h} are sold in store.`,
@@ -331,7 +337,10 @@ export const MESSAGES = {
       `お一人様あたり合計${total}個まで（種類ごとに${per}個ずつ）ご購入いただけます。`,
     noticeShowScreen:
       "お受け取りの際、この予約画面をスタッフにお見せください。",
-    noticeSoldOut: "本日のケーキはすべて完売いたしました。",
+    noticeSoldOut: "本日の数量は終了いたしました。",
+    fruitCount: (name, n) => `${name} ${n}個`,
+    noticeOnsiteRemain: (list) =>
+      `残りのケーキは店頭でご購入いただけます。<br>${list}`,
     noticeCutoff: (h) => `${h}以降は予約を締め切り、店頭販売のみとなります。`,
     noticeOnsite: (h) => `${h}以降のキャンセル分は店頭で販売いたします。`,
     lookupOnly: "すでに発行された整理券は、暗証番号を入力すると確認できます。",
@@ -432,7 +441,10 @@ export const MESSAGES = {
     noticeMaxPerPerson: (total, per) =>
       `每人最多可购买 ${total} 个（每种口味 ${per} 个）。`,
     noticeShowScreen: "取货时请向店员出示此预约页面。",
-    noticeSoldOut: "今日蛋糕已全部售罄。",
+    noticeSoldOut: "今日数量已售罄。",
+    fruitCount: (name, n) => `${name} ${n}个`,
+    noticeOnsiteRemain: (list) =>
+      `剩余蛋糕可在门店现场购买。<br>${list}`,
     noticeCutoff: (h) => `${h}之后停止预约，仅可现场购买。`,
     noticeOnsite: (h) => `${h}之后取消的预约将在门店现场销售。`,
     lookupOnly: "已领取号码牌的顾客，输入密码即可查看。",

@@ -1218,6 +1218,25 @@
         if (allClosed(blockedList(DAY))) return "soldout";
         return "";
       }
+      /* 아직 팔 수 있는 종류와 남은 개수 (마감된 종류는 제외) */
+      function remainingItems() {
+        const blocked = blockedList(DAY);
+        return FRUITS.filter((f) => !blocked.includes(f) && remainOf(f) > 0).map(
+          (f) => T.fruitCount(FRUIT_NAME[f], remainOf(f)),
+        );
+      }
+
+      /* 예약이 막혔을 때 손님에게 띄울 안내문 (HTML) */
+      function blockedMessage(why) {
+        const left = remainingItems();
+        if (!left.length) return T.noticeSoldOut;
+        const head =
+          why === "cutoff"
+            ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
+            : T.noticeSoldOut;
+        return `${head}<br>${T.noticeOnsiteRemain(left.join(", "))}`;
+      }
+
       function renderDayNotice() {
         const el = $("dayNotice");
         const why = newReservationBlocked();
@@ -1296,10 +1315,7 @@
           const why = newReservationBlocked();
           if (why) {
             renderDayNotice();
-            $("phoneHint").textContent =
-              why === "cutoff"
-                ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
-                : T.noticeSoldOut;
+            $("phoneHint").innerHTML = blockedMessage(why);
             return;
           }
           currentCode = c;
@@ -1557,10 +1573,7 @@
             show($("screen-phone"));
             restartFade($("screen-phone"));
             renderDayNotice();
-            $("phoneHint").textContent =
-              result.blocked === "cutoff"
-                ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
-                : T.noticeSoldOut;
+            $("phoneHint").innerHTML = blockedMessage(result.blocked);
             return;
           }
           if (result.blocked === "type") {
