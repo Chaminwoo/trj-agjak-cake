@@ -744,6 +744,12 @@
         <p class="cb" id="t-closedBody"></p>
       </section>
 
+      <!-- 잘못된 주소로 접속 (알 수 없는 점포 경로) -->
+      <section id="screen-invalid" class="card closed fade hidden">
+        <p class="ct" id="t-invalidStoreTitle"></p>
+        <p class="cb" id="t-invalidStoreBody"></p>
+      </section>
+
       <!-- STEP 1 : 전화번호 + 동의 -->
       <section id="screen-phone" class="card fade hidden">
         <div class="dayNotice hidden" id="dayNotice"></div>
@@ -971,6 +977,8 @@
       setTxt("t-footer", T.footer(PICKUP_HOUR));
       setTxt("t-closedTitle", T.closedTitle);
       setTxt("t-closedBody", T.closedBody);
+      setTxt("t-invalidStoreTitle", T.invalidStoreTitle);
+      setTxt("t-invalidStoreBody", T.invalidStoreBody);
       setTxt("t-noticePhoneReal", T.noticePhoneReal);
       setTxt("t-noticePurge", T.noticePurge(T.hourFmt(PURGE_HOUR)));
       setTxt(
@@ -1033,21 +1041,26 @@
       const digits = (s) => (s || "").replace(/\D/g, "");
 
       /* ---------- 점포(매장) 판별 ----------
-         주소 경로(/gangnam)에서 먼저 찾고, 없으면 ?store=gangnam,
-         그래도 없으면 기본 점포를 씁니다. */
+         주소 경로(/gangnam)에서 먼저 찾고, 없으면 ?store=gangnam 를 봅니다.
+         주소가 비어 있으면(https://agjak.store/) 기본 점포로 열리지만,
+         경로나 ?store= 값이 있는데 등록된 점포가 아니면 잘못된 QR로 보고
+         접속을 막습니다. (오타·다른 QR 스캔 등을 걸러내기 위함) */
       function detectStore() {
         const seg = (location.pathname || "")
           .split("/")
           .filter(Boolean)
           .map((x) => x.toLowerCase());
-        for (const x of seg) if (STORES[x]) return x;
         const q = (new URLSearchParams(location.search).get("store") || "")
           .trim()
           .toLowerCase();
+
+        if (seg.length === 0 && !q) return DEFAULT_STORE;
+        for (const x of seg) if (STORES[x]) return x;
         if (STORES[q]) return q;
-        return DEFAULT_STORE;
+        return null; // 알 수 없는 점포 경로
       }
       const STORE = detectStore();
+      const STORE_VALID = STORE !== null;
       const STORE_LABEL = (STORES[STORE] || {}).name || STORE;
       // 번호표 : tickets / {점포} / {날짜} / {번호표}
       const ticketRefOf = (date, id) => doc(db, "tickets", STORE, date, id);
@@ -1840,7 +1853,17 @@
       }
 
       renderTypes();
-      start();
+      if (STORE_VALID) {
+        start();
+      } else {
+        // 등록되지 않은 점포 경로 — Firestore를 건드리지 않고 바로 안내만 띄웁니다.
+        console.error("알 수 없는 점포 경로:", location.pathname + location.search);
+        hide($("screen-phone"));
+        hide($("t-footer"));
+        busy(false);
+        show($("screen-invalid"));
+        restartFade($("screen-invalid"));
+      }
     </script>
   </body>
 </html>

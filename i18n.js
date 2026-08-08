@@ -95,6 +95,8 @@ export const MESSAGES = {
     errorIssue: "발급 중 오류가 발생했습니다. 다시 시도해 주세요.",
     closedTitle: "금일은 모두 마감되었습니다.",
     closedBody: "매일 오전 8시에 예약 가능하니 다음에 찾아주세요.",
+    invalidStoreTitle: "실제 매장에서 QR을 찍으셨나요?",
+    invalidStoreBody: "직원에게 QR코드를 확인받으세요!",
     typeClosedError: "선택하신 종류는 마감되었습니다. 다시 선택해 주세요.",
     soldOutBadge: "마감",
 
@@ -212,6 +214,8 @@ export const MESSAGES = {
     errorIssue: "Could not issue the ticket. Please try again.",
     closedTitle: "Fully booked for today.",
     closedBody: "Reservations open daily at 8:00 AM. Please visit us again.",
+    invalidStoreTitle: "Did you scan this QR code in store?",
+    invalidStoreBody: "Please ask our staff to check the QR code.",
     typeClosedError: "That item is no longer available. Please choose again.",
     soldOutBadge: "Sold out",
 
@@ -328,6 +332,8 @@ export const MESSAGES = {
     closedTitle: "本日は受付を終了いたしました。",
     closedBody:
       "毎朝8時からご予約いただけます。またのお越しをお待ちしております。",
+    invalidStoreTitle: "実際の店舗でQRコードを読み取りましたか？",
+    invalidStoreBody: "スタッフにQRコードをご確認いただいてください。",
     typeClosedError: "選択した種類は受付終了しました。もう一度お選びください。",
     soldOutBadge: "終了",
 
@@ -435,6 +441,8 @@ export const MESSAGES = {
     errorIssue: "领取失败，请重试。",
     closedTitle: "今日已全部结束。",
     closedBody: "每天上午8点开放预约，欢迎下次光临。",
+    invalidStoreTitle: "您是在门店扫描此二维码的吗？",
+    invalidStoreBody: "请联系店员确认二维码。",
     typeClosedError: "您选择的种类已停止领取，请重新选择。",
     soldOutBadge: "已结束",
 
