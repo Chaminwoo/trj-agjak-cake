@@ -124,7 +124,7 @@ export const PICKUP_SLOT_STEP_MIN = 30;
 
 // 13-1) 이 시각 이후에는 새 예약을 받지 않습니다. (기존 번호표 조회는 계속 가능)
 //      기본 19 = 오후 7시. 소수점도 가능합니다. (19.5 = 7시 30분)
-export const RESERVE_CUTOFF_HOUR = 19;
+export const RESERVE_CUTOFF_HOUR = 23;
 
 // 13-2) 미수령 예약을 일괄 정리해 현장 판매로 돌리는 시각 (안내 문구용)
 export const ONSITE_SALE_HOUR = 20;
