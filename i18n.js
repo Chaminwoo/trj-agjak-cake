@@ -86,7 +86,6 @@ export const MESSAGES = {
     footer: (h) => `케이크를 받으신 뒤 '픽업 완료'를 눌러 주세요.`,
 
     pickupDone: "픽업 완료",
-    pickupDoneNote: (h) => `입력하신 전화번호는 ${h} 이후 일괄 파기됩니다.`,
     pickupNotYet: "오후 2시부터 픽업 완료 처리가 가능합니다.",
     pickupConfirmTitle: "픽업을 완료할까요?",
     pickupConfirmMsg:
@@ -108,6 +107,7 @@ export const MESSAGES = {
       return `${ap} ${h12}시${mm ? ` ${mm}분` : ""}`;
     },
     noticePhoneReal: "실제 연락이 가능한 번호로 입력해 주세요.",
+    noticePurge: (h) => `고객님의 전화번호는 ${h} 이후 자동 파기됩니다.`,
     noticeMaxPerPerson: (total, per) =>
       `1인당 총 ${total}개까지 구매하실 수 있습니다. (품목별 ${per}개씩)`,
     noticeShowScreen: "픽업 시 이 예약 화면을 직원에게 보여 주세요.",
@@ -203,8 +203,6 @@ export const MESSAGES = {
     footer: (h) => `Please tap 'Pickup complete' after receiving your cake.`,
 
     pickupDone: "Pickup complete",
-    pickupDoneNote: (h) =>
-      `Your phone number is erased in a single batch after ${h}.`,
     pickupNotYet: "Pickup can be completed from 2:00 PM.",
     pickupConfirmTitle: "Complete pickup?",
     pickupConfirmMsg:
@@ -226,6 +224,7 @@ export const MESSAGES = {
       return `${h12}:${String(mm).padStart(2, "0")} ${ap}`;
     },
     noticePhoneReal: "Please enter a number we can actually reach you at.",
+    noticePurge: (h) => `Your phone number is automatically erased after ${h}.`,
     noticeMaxPerPerson: (total, per) =>
       `Up to ${total} cakes per person (${per} of each flavour).`,
     noticeShowScreen: "Please show this screen to our staff at pickup.",
@@ -318,7 +317,6 @@ export const MESSAGES = {
     footer: (h) => `ケーキを受け取ったら「受取完了」を押してください。`,
 
     pickupDone: "受取完了",
-    pickupDoneNote: (h) => `ご入力の電話番号は${h}以降に一括で破棄されます。`,
     pickupNotYet: "午後2時から受取完了の操作ができます。",
     pickupConfirmTitle: "受取を完了しますか？",
     pickupConfirmMsg:
@@ -342,6 +340,7 @@ export const MESSAGES = {
       return `${ap}${h12}時${mm ? `${mm}分` : ""}`;
     },
     noticePhoneReal: "実際に連絡がつく番号をご入力ください。",
+    noticePurge: (h) => `お客様の電話番号は${h}以降に自動的に破棄されます。`,
     noticeMaxPerPerson: (total, per) =>
       `お一人様あたり合計${total}個まで（種類ごとに${per}個ずつ）ご購入いただけます。`,
     noticeShowScreen:
@@ -428,7 +427,6 @@ export const MESSAGES = {
     footer: (h) => `取到蛋糕后请点击"取货完成"。`,
 
     pickupDone: "取货完成",
-    pickupDoneNote: (h) => `您填写的手机号码将在${h}之后统一销毁。`,
     pickupNotYet: "下午2点起可以进行取货完成操作。",
     pickupConfirmTitle: "确认完成取货？",
     pickupConfirmMsg: "请在拿到蛋糕后再点击。完成后无法撤销。",
@@ -449,6 +447,7 @@ export const MESSAGES = {
       return `${ap}${h12}点${mm ? `${mm}分` : ""}`;
     },
     noticePhoneReal: "请填写可以实际联系到您的号码。",
+    noticePurge: (h) => `您的手机号码将在${h}之后自动销毁。`,
     noticeMaxPerPerson: (total, per) =>
       `每人最多可购买 ${total} 个（每种口味 ${per} 个）。`,
     noticeShowScreen: "取货时请向店员出示此预约页面。",

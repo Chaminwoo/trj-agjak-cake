@@ -752,6 +752,7 @@
           <span class="lab" id="t-phoneLabel"></span>
           <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" />
           <p class="subnote" id="t-noticePhoneReal"></p>
+          <p class="subnote" id="t-noticePurge"></p>
         </label>
 
         <div class="consent">
@@ -971,6 +972,7 @@
       setTxt("t-closedTitle", T.closedTitle);
       setTxt("t-closedBody", T.closedBody);
       setTxt("t-noticePhoneReal", T.noticePhoneReal);
+      setTxt("t-noticePurge", T.noticePurge(T.hourFmt(PURGE_HOUR)));
       setTxt(
         "t-noticeMaxPerPerson",
         T.noticeMaxPerPerson(MAX_PER_TYPE * FRUITS.length, MAX_PER_TYPE),
@@ -1267,7 +1269,7 @@
           why === "cutoff"
             ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
             : T.noticeSoldOut;
-        el.innerHTML = `${head}<br>${T.noticeOnsite(T.hourFmt(ONSITE_SALE_HOUR))}<br>${T.lookupOnly}`;
+        el.innerHTML = `${head}<br>${T.noticeOnsite(T.hourFmt(ONSITE_SALE_HOUR))}<br>${T.lookupOnly}<br>${T.noticePurge(T.hourFmt(PURGE_HOUR))}`;
         el.classList.remove("hidden");
       }
 
@@ -1774,7 +1776,7 @@
           showDone && ready
             ? `<div id="doneBox">
       <button class="btn" id="doneBtn">${T.pickupDone}</button>
-      <p class="doneNote">${T.pickupDoneNote(T.hourFmt(PURGE_HOUR))}</p>
+      <p class="doneNote">${T.noticePurge(T.hourFmt(PURGE_HOUR))}</p>
     </div>`
             : "";
 
@@ -1792,7 +1794,11 @@
       <span class="tv">${T.priceFmt(o.total ?? calcTotal(items, o.bags))}</span>
     </div>
     <p class="note" id="resNote">${note}</p>
-    ${o.state === "received" || o.state === "cancelled" || o.state === "already" ? "" : `<p class="resNotice">${T.noticeShowScreen}</p>`}
+    <p class="resNotice">${
+      o.state === "received" || o.state === "cancelled" || o.state === "already"
+        ? T.noticePurge(T.hourFmt(PURGE_HOUR))
+        : `${T.noticeShowScreen}<br>${T.noticePurge(T.hourFmt(PURGE_HOUR))}`
+    }</p>
     ${doneHtml}
   `;
         if (showDone && ready) {

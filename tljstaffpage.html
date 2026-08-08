@@ -829,7 +829,7 @@
       </div>
 
       <div class="closebar">
-        <button class="btn danger" id="closeDayBtn">금일 마감하기</button>
+        <button class="btn danger" id="closeDayBtn">마감 / 수량 조정</button>
       </div>
     </div>
 
@@ -1607,7 +1607,9 @@
           }
           limits[f] = Math.floor(raw);
         }
-        const shrink = FRUITS.filter((f) => limits[f] < (currentCounts[f] || 0));
+        const shrink = FRUITS.filter(
+          (f) => limits[f] < (currentCounts[f] || 0),
+        );
         const ok = await confirmBox(
           "수량 저장",
           shrink.length
