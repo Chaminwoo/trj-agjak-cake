@@ -273,6 +273,13 @@
         transition: 0.15s;
         font-variant-numeric: tabular-nums;
       }
+      .slot.past {
+        color: #c9c1b9;
+        background: #f6f4f2;
+        border-color: var(--line);
+        pointer-events: none;
+        text-decoration: line-through;
+      }
       .slot.on {
         border-color: var(--brand);
         background: var(--brand-soft);
@@ -1449,11 +1456,38 @@
       let pickupAt = "";
       $("timeToggle").addEventListener("click", () => {
         const opening = $("slots").classList.contains("hidden");
+        if (opening) refreshSlots();
         $("slots").classList.toggle("hidden", !opening);
         $("timeToggle").classList.toggle("open", opening);
       });
+      /* 이미 지난 시간대는 고를 수 없게 합니다.
+         (예: 14시 01분이면 14:00 슬롯은 선택 불가) */
+      function refreshSlots() {
+        const now = new Date();
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+        let clearedSelected = false;
+        document.querySelectorAll(".slot").forEach((el) => {
+          const [hh, mm] = String(el.dataset.t).split(":").map(Number);
+          const past = hh * 60 + mm < nowMin;
+          el.classList.toggle("past", past);
+          if (past && el.classList.contains("on")) {
+            el.classList.remove("on");
+            clearedSelected = true;
+          }
+        });
+        if (clearedSelected) {
+          pickupAt = "";
+          $("timeToggleText").textContent = T.pickupTimeChoose;
+          $("timeToggleText").classList.add("ph");
+          $("timeToggle").classList.remove("chosen");
+        }
+      }
+      refreshSlots();
+      setInterval(refreshSlots, 30000);
+
       document.querySelectorAll(".slot").forEach((el) => {
         el.addEventListener("click", () => {
+          if (el.classList.contains("past")) return;
           pickupAt = el.dataset.t;
           document
             .querySelectorAll(".slot")
