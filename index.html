@@ -650,6 +650,22 @@
         line-height: 1.6;
       }
 
+      /* 현재 매장 표시 (임시, 화면 하단 중앙) */
+      .storeTag {
+        display: none;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--brand);
+        border: 1px solid var(--brand);
+        border-radius: 999px;
+        padding: 4px 12px;
+        margin-top: 18px;
+        white-space: nowrap;
+      }
+      .storeTag.on {
+        display: inline-block;
+      }
+
       /* 확인창 */
       .modal {
         position: fixed;
@@ -860,6 +876,9 @@
 
       <p class="foot hidden" id="t-footer"></p>
     </div>
+
+    <!-- 임시 표시 : 지금 보고 있는 매장을 화면 하단에 알려줍니다 -->
+    <span class="storeTag" id="storeTag"></span>
 
     <div class="modal" id="confirmModal">
       <div class="box">
@@ -1854,6 +1873,11 @@
 
       renderTypes();
       if (STORE_VALID) {
+        const tag = $("storeTag");
+        if (tag) {
+          tag.textContent = STORE_LABEL;
+          tag.classList.add("on");
+        }
         start();
       } else {
         // 등록되지 않은 점포 경로 — Firestore를 건드리지 않고 바로 안내만 띄웁니다.
