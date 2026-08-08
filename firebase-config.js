@@ -12,10 +12,11 @@ export const firebaseConfig = {
   appId: "1:760790862630:web:7f41c18781ee7705e20fe7",
   measurementId: "G-CK8GBBX333",
 };
-// 1-1) 고객용 사이트 주소 (QR 코드가 가리킬 주소)
+// 1-1) 고객용 사이트 기본 주소 (QR 코드가 가리킬 주소)
 //     실제 배포한 웹주소를 끝에 슬래시(/)까지 넣어 적어주세요.
-//     주소가 바뀌면 여기만 고치고 관리자 화면에서 QR을 다시 저장·인쇄하면 됩니다.
-export const CUSTOMER_SITE_URL = "https://trj-agjak.chaalsdn0217.workers.dev/";
+//     관리자 페이지의 QR 코드는 여기에 로그인한 점포 경로(예: /gangnam)를
+//     자동으로 붙여서 만듭니다. 주소가 바뀌면 여기만 고치면 됩니다.
+export const CUSTOMER_SITE_URL = "https://agjak.store/";
 
 // 1-2) 매장(점포) 목록  ★ 매장을 늘릴 때 여기만 추가하면 됩니다
 //     키(gangnam)가 데이터 저장 위치이자 주소에 쓰이는 값입니다.

@@ -515,6 +515,13 @@
       .modal .mbtns .btn {
         flex: 1;
       }
+      .qrUrl {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        margin: -8px 0 16px;
+        word-break: break-all;
+      }
       #qrCanvas {
         display: block;
         margin: 0 auto 18px;
@@ -825,6 +832,7 @@
       <div class="box">
         <h3>고객용 QR 코드</h3>
         <canvas id="qrCanvas"></canvas>
+        <p class="qrUrl" id="qrUrlText"></p>
         <div class="mbtns">
           <button class="btn" id="qrDownload">저장</button>
           <button class="btn line" id="qrPrint">인쇄</button>
@@ -1639,14 +1647,22 @@
         }
       });
 
-      /* ---------- 고객용 QR ---------- */
-      const customerUrl =
-        (CUSTOMER_SITE_URL || "").trim() ||
-        new URL(".", location.href).href;
+      /* ---------- 고객용 QR ----------
+         기본 주소(CUSTOMER_SITE_URL)에 로그인한 점포 경로를 붙여서 만듭니다.
+         예) https://agjak.store/ + gangnam → https://agjak.store/gangnam
+         STORE 는 로그인 후 정해지므로, QR을 열 때마다 다시 계산합니다. */
+      function customerUrlNow() {
+        const base = (CUSTOMER_SITE_URL || "").trim().replace(/\/+$/, "");
+        return base
+          ? `${base}/${STORE}`
+          : new URL(`./${STORE}`, location.href).href;
+      }
       $("qrBtn").addEventListener("click", () => {
         $("qrModal").classList.add("on");
         try {
-          drawQR($("qrCanvas"), customerUrl, {
+          const url = customerUrlNow();
+          $("qrUrlText").textContent = url;
+          drawQR($("qrCanvas"), url, {
             size: 240,
             margin: 4,
             dark: "#005A34",

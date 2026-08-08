@@ -54,7 +54,7 @@ export const MESSAGES = {
     bagNoteFruitbox: (per) =>
       `과일상자는 케이크 ${per}개당 1개씩<br>선택하실 수 있습니다.`,
     bagNoteIcepack: (n) =>
-      `보냉팩 1개당 아이스팩 ${n}개가 기본 동봉되며,<br>부족하시면 추가로 담으실 수 있습니다.`,
+      `보냉팩 1개당 아이스팩 ${n}개가 기본 동봉되며,<br>부족하시면 추가로 담으실 수 있습니다. (개당 500원)`,
     bagNoteCooler: (cap) =>
       `보냉팩 1개에는 케이크가 최대 ${cap}개까지 들어갑니다. <br>가방 추가를 추천드려요.`,
 
@@ -114,9 +114,9 @@ export const MESSAGES = {
     noticeSoldOut: "금일 케이크는 모두 마감되었습니다.",
     noticeCutoff: (h) =>
       `${h} 이후에는 예약이 마감되어 현장 구매만 가능합니다.`,
-    noticeOnsite: (h) =>
-      `${h} 이후 취소된 예약분은 매장에서 현장 판매합니다.`,
-    lookupOnly: "이미 발급받으신 번호표는 번호를 입력하면 확인하실 수 있습니다.",
+    noticeOnsite: (h) => `${h} 이후 취소된 예약분은 매장에서 현장 판매합니다.`,
+    lookupOnly:
+      "이미 발급받으신 번호표는 번호를 입력하면 확인하실 수 있습니다.",
   },
 
   en: {
@@ -168,8 +168,7 @@ export const MESSAGES = {
     bagNone: "None",
     freeText: "Free",
     priceFmt: (n) => `KRW ${n.toLocaleString("en-US")}`,
-    bagNoteFruitbox: (per) =>
-      `One fruit box is available<br>per ${per} cakes.`,
+    bagNoteFruitbox: (per) => `One fruit box is available<br>per ${per} cakes.`,
     bagNoteIcepack: (n) =>
       `${n} ice packs are included with each cooler pack.<br>You may add more if you need them.`,
     bagNoteCooler: (cap) =>
@@ -233,10 +232,8 @@ export const MESSAGES = {
     noticeSoldOut: "All cakes for today are sold out.",
     noticeCutoff: (h) =>
       `Reservations close at ${h}. After that, in-store purchase only.`,
-    noticeOnsite: (h) =>
-      `Reservations cancelled after ${h} are sold in store.`,
-    lookupOnly:
-      "If you already have a ticket, enter your number to view it.",
+    noticeOnsite: (h) => `Reservations cancelled after ${h} are sold in store.`,
+    lookupOnly: "If you already have a ticket, enter your number to view it.",
   },
 
   ja: {
@@ -347,13 +344,12 @@ export const MESSAGES = {
     noticePhoneReal: "実際に連絡がつく番号をご入力ください。",
     noticeMaxPerPerson: (total, per) =>
       `お一人様あたり合計${total}個まで（種類ごとに${per}個ずつ）ご購入いただけます。`,
-    noticeShowScreen: "お受け取りの際、この予約画面をスタッフにお見せください。",
+    noticeShowScreen:
+      "お受け取りの際、この予約画面をスタッフにお見せください。",
     noticeSoldOut: "本日のケーキはすべて完売いたしました。",
-    noticeCutoff: (h) =>
-      `${h}以降は予約を締め切り、店頭販売のみとなります。`,
+    noticeCutoff: (h) => `${h}以降は予約を締め切り、店頭販売のみとなります。`,
     noticeOnsite: (h) => `${h}以降のキャンセル分は店頭で販売いたします。`,
-    lookupOnly:
-      "すでに発行された整理券は、番号を入力すると確認できます。",
+    lookupOnly: "すでに発行された整理券は、番号を入力すると確認できます。",
   },
 
   zh: {
@@ -382,16 +378,14 @@ export const MESSAGES = {
     mango: "芒果",
     lemon: "柠檬",
     melon: "甜瓜",
-    cakePriceNote: (p, max) =>
-      `每个蛋糕 ${p}。<br>每种口味最多可选${max}个。`,
+    cakePriceNote: (p, max) => `每个蛋糕 ${p}。<br>每种口味最多可选${max}个。`,
     estTotal: "预计付款金额",
     next: "下一步",
 
     pickupTimeLabel: "选择取货时间",
     pickupTimeChoose: "选择时间",
     pickupTimeRequired: "请选择取货时间。",
-    pickupTimeNote: (m) =>
-      `超过所选时间${m}分钟后，<br>预约将自动取消。`,
+    pickupTimeNote: (m) => `超过所选时间${m}分钟后，<br>预约将自动取消。`,
 
     bagLabel: "包装选择",
     bagReset: "重置选择",
@@ -404,8 +398,7 @@ export const MESSAGES = {
     freeText: "免费",
     priceFmt: (n) => `${n.toLocaleString("zh-CN")}韩元`,
     bagNoteFruitbox: (per) => `每${per}个蛋糕可选择1个水果盒。`,
-    bagNoteIcepack: (n) =>
-      `每个保冷袋随附${n}个冰袋，<br>不够时可以另外加购。`,
+    bagNoteIcepack: (n) => `每个保冷袋随附${n}个冰袋，<br>不够时可以另外加购。`,
     bagNoteCooler: (cap) =>
       `一个保冷袋最多可装${cap}个蛋糕，<br>建议再加一个。`,
 
@@ -427,8 +420,7 @@ export const MESSAGES = {
     stateReceived: "已取货",
     stateAlready: "您已取货",
     stateCancelled: "预约已取消",
-    noteNew: (h) =>
-      `下午2点起可以取货。<br>此号码牌仅可在江南店使用。`,
+    noteNew: (h) => `下午2点起可以取货。<br>此号码牌仅可在江南店使用。`,
     noteWaiting: (h) => `下午2点起可以取货。`,
     noteReceived: "取货已完成，谢谢惠顾。",
     noteAlready: (t) => `该号码牌已完成取货。${t ? `（${t}）` : ""}`,
@@ -439,8 +431,7 @@ export const MESSAGES = {
     pickupDoneNote: (h) => `您填写的手机号码将在${h}之后统一销毁。`,
     pickupNotYet: "下午2点起可以进行取货完成操作。",
     pickupConfirmTitle: "确认完成取货？",
-    pickupConfirmMsg:
-      "请在拿到蛋糕后再点击。完成后无法撤销。",
+    pickupConfirmMsg: "请在拿到蛋糕后再点击。完成后无法撤销。",
 
     errorGeneric: "发生错误，请稍后再试。",
     errorIssue: "领取失败，请重试。",
