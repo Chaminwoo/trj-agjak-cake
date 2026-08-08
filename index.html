@@ -426,70 +426,18 @@
         font-weight: 500;
       }
 
-      /* ---- 개인정보 동의 ---- */
-      .consent {
-        border: 1px solid var(--line);
-        background: var(--field);
-        border-radius: 12px;
-        padding: 14px 15px;
-        margin-bottom: 4px;
+      /* ---- 사용자 지정 암호 입력칸 ---- */
+      input#userCode {
+        text-align: center;
+        letter-spacing: 6px;
+        font-weight: 700;
+        font-size: 20px;
+        text-transform: uppercase;
       }
-      .consent .crow {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-      }
-      .chk {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        line-height: 1.5;
-        color: var(--text);
-      }
-      .chk input {
-        appearance: none;
-        -webkit-appearance: none;
-        flex: none;
-        width: 19px;
-        height: 19px;
-        margin: 0;
-        border: 1.5px solid var(--line);
-        border-radius: 6px;
-        background: #fff;
-        cursor: pointer;
-        transition: 0.15s;
-        position: relative;
-      }
-      .chk input:checked {
-        background: var(--brand);
-        border-color: var(--brand);
-      }
-      .chk input:checked::after {
-        content: "";
-        position: absolute;
-        left: 5.5px;
-        top: 1.5px;
-        width: 5px;
-        height: 10px;
-        border: solid #fff;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-      }
-      .cbody {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid var(--line);
-        font-size: 12.5px;
-        color: var(--muted);
-        line-height: 1.8;
-      }
-      .cbody a {
-        color: var(--brand);
-        font-weight: 600;
+      input#userCode::placeholder {
+        letter-spacing: normal;
+        font-weight: 500;
+        font-size: 15px;
       }
 
       .totalbox {
@@ -766,30 +714,27 @@
         <p class="cb" id="t-invalidStoreBody"></p>
       </section>
 
-      <!-- STEP 1 : 전화번호 + 동의 -->
+      <!-- STEP 1 : 사용자 지정 암호 -->
       <section id="screen-phone" class="card fade hidden">
         <div class="dayNotice hidden" id="dayNotice"></div>
-        <h2 class="title" id="t-phoneTitle"></h2>
+        <h2 class="title" id="t-codeTitle"></h2>
         <label class="field">
-          <span class="lab" id="t-phoneLabel"></span>
-          <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" />
-          <p class="subnote" id="t-noticePhoneReal"></p>
-          <p class="subnote" id="t-noticePurge"></p>
+          <span class="lab" id="t-userCodeLabel"></span>
+          <input
+            id="userCode"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            maxlength="10"
+          />
+          <p class="subnote" id="t-userCodeHelp"></p>
         </label>
-
-        <div class="consent">
-          <div class="crow">
-            <label class="chk">
-              <input type="checkbox" id="agree" />
-              <span id="t-consentLabel"></span>
-            </label>
-            <button type="button" class="mini" id="consentToggle"></button>
-          </div>
-          <div class="cbody hidden" id="consentBody"></div>
-        </div>
 
         <div class="hint" id="phoneHint"></div>
         <button class="btn" id="phoneBtn"></button>
+        <button type="button" class="btn ghost" id="findBtn"></button>
       </section>
 
       <!-- STEP 2 : 종류 + 포장 + 픽업 시간 -->
@@ -851,7 +796,7 @@
 
       <!-- STEP 3 : 입장코드 -->
       <section id="screen-code" class="card fade hidden">
-        <h2 class="title" id="t-codeTitle"></h2>
+        <h2 class="title" id="t-entryCodeTitle"></h2>
         <label class="field">
           <span class="lab" id="t-codeLabel"></span>
           <input
@@ -915,18 +860,19 @@
         CAKE_PRICE,
         MAX_PER_TYPE,
         ID_SALT,
-        RETENTION_DAYS,
         PICKUP_SLOT_START,
         PICKUP_SLOT_END,
         PICKUP_SLOT_STEP_MIN,
         CANCEL_GRACE_MIN,
-        PURGE_HOUR,
         RESERVE_CUTOFF_HOUR,
         ONSITE_SALE_HOUR,
         STORES,
         DEFAULT_STORE,
-      } from "/firebase-config.js?v=9";
-      import { detectLang, getMessages, LOCALE } from "/i18n.js?v=9";
+        USER_CODE_MIN,
+        USER_CODE_MAX,
+        USER_CODE_PATTERN,
+      } from "/firebase-config.js?v=10";
+      import { detectLang, getMessages, LOCALE } from "/i18n.js?v=10";
 
       /* ---------- 언어 ---------- */
       const LANG = detectLang();
@@ -960,8 +906,9 @@
       };
       const FRUITBOX_PER = (BAGS.find((b) => b.k === "fruitbox") || {}).perCakes || 4;
 
-      setTxt("t-phoneTitle", T.infoTitle);
-      setTxt("t-phoneLabel", T.phoneLabel);
+      setTxt("t-codeTitle", T.codeTitleNew);
+      setTxt("t-userCodeLabel", T.userCodeLabel);
+      setTxt("t-userCodeHelp", T.userCodeHelp);
       setTxt("t-infoTitle", T.typeLabel);
       FRUITS.forEach((f) => setTxt("t-" + f, FRUIT_NAME[f]));
       setHtml(
@@ -977,16 +924,10 @@
       setHtml("t-pickupTimeNote", T.pickupTimeNote(CANCEL_GRACE_MIN));
       setTxt("t-estTotal", T.estTotal);
       setTxt("t-estTotal2", T.estTotal);
-      setTxt("t-codeTitle", T.codeLabel);
+      setTxt("t-entryCodeTitle", T.codeLabel);
       setTxt("t-codeLabel", T.codeLabel);
-      setTxt("t-consentLabel", T.consentLabel);
-      setTxt("consentToggle", T.consentView);
-      setHtml(
-        "consentBody",
-        T.consentBody(RETENTION_DAYS) +
-          `<br><a href="/privacy.html" target="_blank" rel="noopener">${T.privacyLink}</a>`,
-      );
-      setTxt("phoneBtn", T.confirm);
+      setTxt("phoneBtn", T.btnReserve);
+      setTxt("findBtn", T.btnFind);
       setTxt("formBtn", T.next);
       setTxt("formBack", T.back);
       setTxt("codeBtn", T.issue);
@@ -998,13 +939,11 @@
       setTxt("t-closedBody", T.closedBody);
       setTxt("t-invalidStoreTitle", T.invalidStoreTitle);
       setTxt("t-invalidStoreBody", T.invalidStoreBody);
-      setTxt("t-noticePhoneReal", T.noticePhoneReal);
-      setTxt("t-noticePurge", T.noticePurge(T.hourFmt(PURGE_HOUR)));
       setTxt(
         "t-noticeMaxPerPerson",
         T.noticeMaxPerPerson(MAX_PER_TYPE * FRUITS.length, MAX_PER_TYPE),
       );
-      $("phone").placeholder = T.phonePlaceholder;
+      $("userCode").placeholder = T.userCodePlaceholder;
       $("entryCode").placeholder = T.codePlaceholder;
 
       /* ---------- 포장 목록 (아이스팩은 '선택 초기화' 왼쪽 칩으로 표시) ---------- */
@@ -1085,14 +1024,6 @@
       const ticketRefOf = (date, id) => doc(db, "tickets", STORE, date, id);
       // 수량·마감 : counters / {점포}_{날짜}
       const counterRefOf = (date) => doc(db, "counters", `${STORE}_${date}`);
-      function fmtPhone(s) {
-        const d = digits(s);
-        if (d.length >= 11)
-          return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7, 11)}`;
-        if (d.length === 10)
-          return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
-        return s;
-      }
       function fmtTime(ts) {
         if (!ts) return "—";
         const d = ts?.toDate
@@ -1153,8 +1084,8 @@
         }
         return [a, b, c, d].map((x) => x.toString(16).padStart(8, "0")).join("");
       }
-      const ticketId = (date, phone) =>
-        `${date}_${mix(date + "|" + phone + "|" + ID_SALT)}`;
+      const ticketId = (date, userCode) =>
+        `${date}_${mix(date + "|" + userCode + "|" + ID_SALT)}`;
 
       /* 픽업 시간 + 유예시간이 지났는지 */
       function isExpired(t, now = new Date()) {
@@ -1301,62 +1232,69 @@
           why === "cutoff"
             ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
             : T.noticeSoldOut;
-        el.innerHTML = `${head}<br>${T.noticeOnsite(T.hourFmt(ONSITE_SALE_HOUR))}<br>${T.lookupOnly}<br>${T.noticePurge(T.hourFmt(PURGE_HOUR))}`;
+        el.innerHTML = `${head}<br>${T.noticeOnsite(T.hourFmt(ONSITE_SALE_HOUR))}<br>${T.lookupOnly}`;
         el.classList.remove("hidden");
       }
 
-      /* ---------- STEP 1 : 전화번호 + 동의 ---------- */
-      const phoneEl = $("phone");
-      phoneEl.addEventListener("input", () => {
-        phoneEl.value = fmtPhone(phoneEl.value);
+      /* ---------- STEP 1 : 사용자 지정 암호 ----------
+         손님이 직접 정한 암호로 예약하고, 나중에 같은 암호로 조회합니다.
+         개인정보를 수집하지 않으므로 전화번호는 받지 않습니다. */
+      const codeEl2 = $("userCode");
+      // 영문 대문자와 숫자만 남기고 자동으로 대문자로 바꿉니다.
+      const normCode = (v) =>
+        String(v || "")
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "")
+          .slice(0, USER_CODE_MAX);
+      const validCode = (v) =>
+        v.length >= USER_CODE_MIN &&
+        v.length <= USER_CODE_MAX &&
+        USER_CODE_PATTERN.test(v);
+
+      codeEl2.addEventListener("input", () => {
+        const pos = codeEl2.value.length;
+        codeEl2.value = normCode(codeEl2.value);
+        if (pos) codeEl2.setSelectionRange(codeEl2.value.length, codeEl2.value.length);
       });
-      phoneEl.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") onCheckPhone();
+      codeEl2.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") onReserve();
       });
-      $("phoneBtn").addEventListener("click", onCheckPhone);
+      $("phoneBtn").addEventListener("click", onReserve);
+      $("findBtn").addEventListener("click", onFind);
 
-      const agreeEl = $("agree");
-      agreeEl.checked = false;
-      function syncAgree() {
-        $("phoneBtn").disabled = !agreeEl.checked;
-        if (agreeEl.checked) $("phoneHint").textContent = "";
-      }
-      agreeEl.addEventListener("change", syncAgree);
-      syncAgree();
+      let currentCode = "";
 
-      $("consentToggle").addEventListener("click", () => {
-        const opened = $("consentBody").classList.toggle("hidden");
-        setTxt("consentToggle", opened ? T.consentView : T.consentHide);
-      });
-
-      let currentPhone = "";
-
-      async function onCheckPhone() {
-        const p = digits(phoneEl.value);
+      function readCode() {
+        const c = normCode(codeEl2.value);
         $("phoneHint").textContent = "";
-        if (p.length < 10) {
-          $("phoneHint").textContent = T.phoneInvalid;
-          return;
+        if (!validCode(c)) {
+          $("phoneHint").textContent = T.userCodeInvalid(
+            USER_CODE_MIN,
+            USER_CODE_MAX,
+          );
+          return "";
         }
-        if (!agreeEl.checked) {
-          $("phoneHint").textContent = T.consentRequired;
-          return;
-        }
-        currentPhone = p;
+        return c;
+      }
+
+      /* 예약하기 — 이미 쓰인 암호면 다른 암호를 입력하도록 막습니다. */
+      async function onReserve() {
+        const c = readCode();
+        if (!c) return;
         busy(true);
         try {
-          const existing = await findTodayTicket(p);
+          const existing = await findTodayTicket(c);
           if (existing) {
             busy(false);
-            await handleRevisit(existing);
+            $("phoneHint").textContent = T.userCodeTaken;
+            codeEl2.focus();
+            codeEl2.select();
             return;
           }
           await refreshDay();
           busy(false);
           const why = newReservationBlocked();
           if (why) {
-            // 새 번호는 예약을 시작할 수 없지만, 화면은 그대로 두어
-            // 기존 번호표 조회는 계속할 수 있게 합니다.
             renderDayNotice();
             $("phoneHint").textContent =
               why === "cutoff"
@@ -1364,6 +1302,7 @@
                 : T.noticeSoldOut;
             return;
           }
+          currentCode = c;
           hide($("screen-phone"));
           show($("screen-form"));
           restartFade($("screen-form"));
@@ -1374,9 +1313,30 @@
         }
       }
 
+      /* 예약 조회 — 암호로 자기 번호표를 찾습니다. */
+      async function onFind() {
+        const c = readCode();
+        if (!c) return;
+        busy(true);
+        try {
+          const existing = await findTodayTicket(c);
+          busy(false);
+          if (!existing) {
+            $("phoneHint").textContent = T.userCodeNotFound;
+            return;
+          }
+          currentCode = c;
+          await handleRevisit(existing);
+        } catch (e) {
+          busy(false);
+          console.error(e);
+          $("phoneHint").textContent = T.errorGeneric;
+        }
+      }
+
       // 자기 번호표 문서 1개만 직접 열어봅니다. (전체 목록 조회는 규칙에서 차단)
-      async function findTodayTicket(phone) {
-        const id = ticketId(todayStr(), phone);
+      async function findTodayTicket(code) {
+        const id = ticketId(todayStr(), code);
         const snap = await getDoc(ticketRefOf(todayStr(), id));
         return snap.exists() ? { id, ...snap.data() } : null;
       }
@@ -1593,15 +1553,21 @@
         busy(true);
         try {
           const result = await createTicket({
-            phone: currentPhone,
+            userCode: currentCode,
             items,
             bags,
             pickupAt,
             code,
           });
           busy(false);
-          if (result.existing) {
-            await handleRevisit(result.existing);
+          if (result.blocked === "taken") {
+            // 고르는 사이에 다른 손님이 같은 암호를 선점한 경우
+            hide($("screen-code"));
+            hide($("screen-form"));
+            show($("screen-phone"));
+            restartFade($("screen-phone"));
+            $("phoneHint").textContent = T.userCodeTaken;
+            $("userCode").focus();
             return;
           }
           if (result.blocked === "full" || result.blocked === "cutoff") {
@@ -1647,16 +1613,16 @@
         }
       }
 
-      async function createTicket({ phone, items, bags, pickupAt, code }) {
+      async function createTicket({ userCode, items, bags, pickupAt, code }) {
         const date = todayStr();
-        const id = ticketId(date, phone);
+        const id = ticketId(date, userCode);
         const counterRef = counterRefOf(date);
         const ticketRef = ticketRefOf(date, id);
         return await runTransaction(db, async (tx) => {
           const cs = await tx.get(counterRef);
           const ts = await tx.get(ticketRef);
-          // 같은 번호로 이미 오늘 번호표가 있으면 새로 만들지 않습니다.
-          if (ts.exists()) return { existing: { id, ...ts.data() } };
+          // 같은 암호로 이미 오늘 번호표가 있으면 다른 손님이 쓰는 중입니다.
+          if (ts.exists()) return { blocked: "taken" };
           const data = cs.exists() ? cs.data() : {};
 
           if (afterCutoff()) return { blocked: "cutoff" };
@@ -1684,7 +1650,7 @@
           const next = (data.last || 0) + 1;
           tx.set(counterRef, { last: next, counts }, { merge: true });
           tx.set(ticketRef, {
-            phone,
+            userCode,
             items,
             bags,
             pickupAt,
@@ -1695,11 +1661,6 @@
             receivedAt: null,
             cancelled: false,
             createdAt: serverTimestamp(),
-            // 개인정보 수집·이용 동의 기록 (개인정보보호법 입증용)
-            consent: true,
-            consentAt: serverTimestamp(),
-            consentVersion: `phone-only-v1`,
-            personalDeleted: false,
           });
           return { ticketNo: next, id };
         });
@@ -1743,7 +1704,7 @@
           return;
         }
         if (t.cancelled || isExpired(t)) {
-          // 픽업 시간이 지난 예약은 취소 처리하고 전화번호를 지웁니다.
+          // 픽업 시간이 지난 예약은 취소 처리합니다.
           if (!t.cancelled) {
             releaseCancelled(t).catch((e) => console.error(e));
           }
@@ -1763,8 +1724,6 @@
         setTxt("resNote", T.noteReceived);
         const box = $("doneBox");
         if (box) box.remove();
-        // 전화번호는 이 자리에서 지우지 않고, 그날 밤 PURGE_HOUR 에
-        // 관리자 화면에서 일괄 파기합니다.
         updateDoc(ticketRefOf(todayStr(), id), {
           received: true,
           receivedAt: serverTimestamp(),
@@ -1808,7 +1767,6 @@
           showDone && ready
             ? `<div id="doneBox">
       <button class="btn" id="doneBtn">${T.pickupDone}</button>
-      <p class="doneNote">${T.noticePurge(T.hourFmt(PURGE_HOUR))}</p>
     </div>`
             : "";
 
@@ -1816,6 +1774,7 @@
     <p class="state${gray ? " gray" : ""}${red ? " red" : ""}" id="resState">${label}</p>
     <p class="ticketBig${red ? " off" : ""}">${o.ticketNo ?? "-"}</p>
     <div class="rows">
+      <div class="row"><span class="k">${T.fieldCode}</span><span class="v">${esc(o.userCode || currentCode || "—")}</span></div>
       <div class="row"><span class="k">${T.fieldType}</span><span class="v">${esc(itemText(items))}</span></div>
       <div class="row"><span class="k">${T.fieldBag}</span><span class="v">${esc(bagText(o.bags))}</span></div>
       <div class="row"><span class="k">${T.fieldPickup}</span><span class="v">${esc(o.pickupAt || "—")}</span></div>
@@ -1826,11 +1785,11 @@
       <span class="tv">${T.priceFmt(o.total ?? calcTotal(items, o.bags))}</span>
     </div>
     <p class="note" id="resNote">${note}</p>
-    <p class="resNotice">${
+    ${
       o.state === "received" || o.state === "cancelled" || o.state === "already"
-        ? T.noticePurge(T.hourFmt(PURGE_HOUR))
-        : `${T.noticeShowScreen}<br>${T.noticePurge(T.hourFmt(PURGE_HOUR))}`
-    }</p>
+        ? ""
+        : `<p class="resNotice">${T.noticeShowScreen}</p>`
+    }
     ${doneHtml}
   `;
         if (showDone && ready) {

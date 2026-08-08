@@ -7,22 +7,22 @@ export const MESSAGES = {
   ko: {
     htmlLang: "ko",
     pageTitle: "번호표",
-    phoneTitle: "전화번호를 입력해 주세요",
-    phoneLabel: "휴대폰 번호",
-    phonePlaceholder: "010-1234-5678",
-    phoneInvalid: "올바른 전화번호를 입력해 주세요.",
+    codeTitleNew: "사용할 암호를 정해 주세요",
+    codeTitleFind: "예약하실 때 정하신 암호를 입력해 주세요",
+    userCodeLabel: "사용자 지정 암호",
+    userCodePlaceholder: "예) ABB990",
+    userCodeInvalid: (min, max) =>
+      `영문 대문자와 숫자로 ${min}~${max}자리를 입력해 주세요.`,
+    userCodeTaken:
+      "이미 다른 손님이 사용 중입니다. 다른 암호를 입력해 주세요.",
+    userCodeNotFound:
+      "해당 암호로 예약된 번호표가 없습니다. 암호를 다시 확인해 주세요.",
+    userCodeHelp:
+      "수령하실 때 이 암호로 번호표를 확인합니다. 잊지 마시고 기억해 주세요.",
+    btnReserve: "예약하기",
+    btnFind: "예약 조회",
     confirm: "확인",
     infoTitle: "정보를 입력해 주세요",
-    consentLabel: "[필수] 개인정보 수집·이용에 동의합니다.",
-    consentView: "전문 보기",
-    consentHide: "접기",
-    consentBody: (days) =>
-      `· 수집 항목 : 휴대폰 번호<br>` +
-      `· 이용 목적 : 케이크 예약 번호표 발급 및 수령 확인<br>` +
-      `· 보유 기간 : 예약 당일 영업 종료 후 일괄 파기 (미방문 기록은 ${days}일 후 파기)<br>` +
-      `· 동의를 거부하실 수 있으나, 거부하시면 번호표 발급이 불가합니다.`,
-    consentRequired: "개인정보 수집·이용에 동의해 주세요.",
-    privacyLink: "개인정보 처리방침",
 
     typeLabel: "종류 (여러 개 선택 가능)",
     typeRequired: "종류를 선택해 주세요.",
@@ -67,6 +67,7 @@ export const MESSAGES = {
     back: "이전",
     reset: "처음으로",
     cancel: "취소",
+    fieldCode: "암호",
     fieldType: "종류",
     fieldBag: "포장",
     fieldPickup: "픽업 시간",
@@ -108,8 +109,6 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${ap} ${h12}시${mm ? ` ${mm}분` : ""}`;
     },
-    noticePhoneReal: "실제 연락이 가능한 번호로 입력해 주세요.",
-    noticePurge: (h) => `고객님의 전화번호는 ${h} 이후 자동 파기됩니다.`,
     noticeMaxPerPerson: (total, per) =>
       `1인당 총 ${total}개까지 구매하실 수 있습니다. (품목별 ${per}개씩)`,
     noticeShowScreen: "픽업 시 이 예약 화면을 직원에게 보여 주세요.",
@@ -118,31 +117,28 @@ export const MESSAGES = {
       `${h} 이후에는 예약이 마감되어 현장 구매만 가능합니다.`,
     noticeOnsite: (h) => `${h} 이후 취소된 예약분은 매장에서 현장 판매합니다.`,
     lookupOnly:
-      "이미 발급받으신 번호표는 번호를 입력하면 확인하실 수 있습니다.",
+      "이미 발급받으신 번호표는 암호를 입력하면 확인하실 수 있습니다.",
   },
 
   en: {
     htmlLang: "en",
     pageTitle: "Ticket",
-    phoneTitle: "Enter your phone number",
-    phoneLabel: "Phone number",
-    phonePlaceholder: "010-1234-5678",
-    phoneInvalid: "Please enter a valid phone number.",
+    codeTitleNew: "Choose your own code",
+    codeTitleFind: "Enter the code you chose",
+    userCodeLabel: "Your code",
+    userCodePlaceholder: "e.g. ABB990",
+    userCodeInvalid: (min, max) =>
+      `Please use ${min}-${max} characters, capital letters and numbers only.`,
+    userCodeTaken:
+      "This code is already in use by another guest. Please choose a different one.",
+    userCodeNotFound:
+      "No reservation found for that code. Please check it and try again.",
+    userCodeHelp:
+      "You will use this code to collect your cake. Please remember it.",
+    btnReserve: "Reserve",
+    btnFind: "Find my ticket",
     confirm: "Continue",
     infoTitle: "Enter your details",
-    consentLabel:
-      "[Required] I agree to the collection and use of my personal data.",
-    consentView: "View full text",
-    consentHide: "Hide",
-    consentBody: (days) =>
-      `· Data collected : mobile phone number<br>` +
-      `· Purpose : issuing and verifying your cake reservation ticket<br>` +
-      `· Retention : erased together after closing on the day of your reservation (unvisited records after ${days} days)<br>` +
-      `· You may refuse, but a ticket cannot be issued without consent.`,
-    consentRequired:
-      "Please agree to the collection and use of your personal data.",
-    privacyLink: "Privacy Policy",
-
     typeLabel: "Choose one or more",
     typeRequired: "Please select at least one.",
     peach: "Peach",
@@ -185,6 +181,7 @@ export const MESSAGES = {
     back: "Back",
     reset: "Start over",
     cancel: "Cancel",
+    fieldCode: "Code",
     fieldType: "Item",
     fieldBag: "Packaging",
     fieldPickup: "Pickup time",
@@ -227,8 +224,6 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${h12}:${String(mm).padStart(2, "0")} ${ap}`;
     },
-    noticePhoneReal: "Please enter a number we can actually reach you at.",
-    noticePurge: (h) => `Your phone number is automatically erased after ${h}.`,
     noticeMaxPerPerson: (total, per) =>
       `Up to ${total} cakes per person (${per} of each flavour).`,
     noticeShowScreen: "Please show this screen to our staff at pickup.",
@@ -236,29 +231,28 @@ export const MESSAGES = {
     noticeCutoff: (h) =>
       `Reservations close at ${h}. After that, in-store purchase only.`,
     noticeOnsite: (h) => `Reservations cancelled after ${h} are sold in store.`,
-    lookupOnly: "If you already have a ticket, enter your number to view it.",
+    lookupOnly: "If you already have a ticket, enter your code to view it.",
   },
 
   ja: {
     htmlLang: "ja",
     pageTitle: "整理券",
-    phoneTitle: "電話番号を入力してください",
-    phoneLabel: "電話番号",
-    phonePlaceholder: "090-1234-5678",
-    phoneInvalid: "正しい電話番号を入力してください。",
+    codeTitleNew: "ご希望の暗証番号をお決めください",
+    codeTitleFind: "ご予約時の暗証番号を入力してください",
+    userCodeLabel: "暗証番号",
+    userCodePlaceholder: "例) ABB990",
+    userCodeInvalid: (min, max) =>
+      `英大文字と数字で${min}〜${max}文字を入力してください。`,
+    userCodeTaken:
+      "この暗証番号はすでに他のお客様が使用中です。別の番号をご入力ください。",
+    userCodeNotFound:
+      "その暗証番号での予約が見つかりません。もう一度ご確認ください。",
+    userCodeHelp:
+      "お受け取りの際にこの暗証番号で確認します。お忘れなくお控えください。",
+    btnReserve: "予約する",
+    btnFind: "予約照会",
     confirm: "確認",
     infoTitle: "情報を入力してください",
-    consentLabel: "[必須] 個人情報の収集・利用に同意します。",
-    consentView: "全文を見る",
-    consentHide: "閉じる",
-    consentBody: (days) =>
-      `· 収集項目 : 携帯電話番号<br>` +
-      `· 利用目的 : ケーキ予約の整理券発行および受取確認<br>` +
-      `· 保有期間 : 予約当日の営業終了後に一括破棄（未来店の記録は${days}日後に破棄）<br>` +
-      `· 同意を拒否できますが、その場合は整理券を発行できません。`,
-    consentRequired: "個人情報の収集・利用にご同意ください。",
-    privacyLink: "プライバシーポリシー",
-
     typeLabel: "種類（複数選択可）",
     typeRequired: "種類を選択してください。",
     peach: "ピーチ",
@@ -302,6 +296,7 @@ export const MESSAGES = {
     back: "戻る",
     reset: "最初から",
     cancel: "キャンセル",
+    fieldCode: "暗証番号",
     fieldType: "種類",
     fieldBag: "包装",
     fieldPickup: "受取時間",
@@ -345,8 +340,6 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${ap}${h12}時${mm ? `${mm}分` : ""}`;
     },
-    noticePhoneReal: "実際に連絡がつく番号をご入力ください。",
-    noticePurge: (h) => `お客様の電話番号は${h}以降に自動的に破棄されます。`,
     noticeMaxPerPerson: (total, per) =>
       `お一人様あたり合計${total}個まで（種類ごとに${per}個ずつ）ご購入いただけます。`,
     noticeShowScreen:
@@ -354,29 +347,25 @@ export const MESSAGES = {
     noticeSoldOut: "本日のケーキはすべて完売いたしました。",
     noticeCutoff: (h) => `${h}以降は予約を締め切り、店頭販売のみとなります。`,
     noticeOnsite: (h) => `${h}以降のキャンセル分は店頭で販売いたします。`,
-    lookupOnly: "すでに発行された整理券は、番号を入力すると確認できます。",
+    lookupOnly: "すでに発行された整理券は、暗証番号を入力すると確認できます。",
   },
 
   zh: {
     htmlLang: "zh",
     pageTitle: "号码牌",
-    phoneTitle: "请输入手机号码",
-    phoneLabel: "手机号码",
-    phonePlaceholder: "010-1234-5678",
-    phoneInvalid: "请输入正确的手机号码。",
+    codeTitleNew: "请设置您的专属密码",
+    codeTitleFind: "请输入预约时设置的密码",
+    userCodeLabel: "专属密码",
+    userCodePlaceholder: "例) ABB990",
+    userCodeInvalid: (min, max) =>
+      `请输入 ${min}~${max} 位大写英文字母和数字。`,
+    userCodeTaken: "该密码已被其他顾客使用，请更换其他密码。",
+    userCodeNotFound: "未找到该密码对应的预约，请重新确认。",
+    userCodeHelp: "取货时将使用此密码确认，请务必牢记。",
+    btnReserve: "预约",
+    btnFind: "查询预约",
     confirm: "确认",
     infoTitle: "请填写信息",
-    consentLabel: "[必填] 我同意收集和使用个人信息。",
-    consentView: "查看全文",
-    consentHide: "收起",
-    consentBody: (days) =>
-      `· 收集项目 : 手机号码<br>` +
-      `· 使用目的 : 蛋糕预约号码牌发放及取货确认<br>` +
-      `· 保留期限 : 预约当日营业结束后统一销毁（未到店的记录${days}天后销毁）<br>` +
-      `· 您可以拒绝同意，但拒绝后将无法领取号码牌。`,
-    consentRequired: "请同意收集和使用个人信息。",
-    privacyLink: "隐私政策",
-
     typeLabel: "种类（可多选）",
     typeRequired: "请至少选择一种。",
     peach: "水蜜桃",
@@ -416,6 +405,7 @@ export const MESSAGES = {
     back: "返回",
     reset: "重新开始",
     cancel: "取消",
+    fieldCode: "密码",
     fieldType: "种类",
     fieldBag: "包装",
     fieldPickup: "取货时间",
@@ -454,15 +444,13 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${ap}${h12}点${mm ? `${mm}分` : ""}`;
     },
-    noticePhoneReal: "请填写可以实际联系到您的号码。",
-    noticePurge: (h) => `您的手机号码将在${h}之后自动销毁。`,
     noticeMaxPerPerson: (total, per) =>
       `每人最多可购买 ${total} 个（每种口味 ${per} 个）。`,
     noticeShowScreen: "取货时请向店员出示此预约页面。",
     noticeSoldOut: "今日蛋糕已全部售罄。",
     noticeCutoff: (h) => `${h}之后停止预约，仅可现场购买。`,
     noticeOnsite: (h) => `${h}之后取消的预约将在门店现场销售。`,
-    lookupOnly: "已领取号码牌的顾客，输入手机号即可查看。",
+    lookupOnly: "已领取号码牌的顾客，输入密码即可查看。",
   },
 };
 

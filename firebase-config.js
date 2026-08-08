@@ -72,13 +72,16 @@ export const PICKUP_HOUR = 13.5;
 export const ADMIN_ID_DOMAIN = "@trj-agjak.local";
 
 // 5) 문서 ID 를 만들 때 섞는 값 (아무 문자열이나 길게).
-//    번호표 문서 ID 에 전화번호가 그대로 드러나지 않도록 하는 용도입니다.
+//    번호표 문서 ID 에 손님이 정한 암호가 그대로 드러나지 않도록 하는 용도입니다.
 //    한 번 정한 뒤에는 바꾸지 마세요. (바꾸면 기존 번호표를 못 찾습니다)
 export const ID_SALT = "trj-agjak-2026-a7f3c1";
 
-// 6) 개인정보 보유 기간(일). 이 기간이 지난 번호표는
-//    관리자 페이지 접속 시 이름·전화번호가 자동으로 가려집니다.
-export const RETENTION_DAYS = 30;
+// 6) 손님이 직접 정하는 "사용자 지정 암호" 규칙
+//    영문 대문자와 숫자만 사용합니다. (소문자로 입력해도 자동으로 대문자가 됩니다)
+//    예) ABB990 / 001482 / OAFOFA
+export const USER_CODE_MIN = 4;
+export const USER_CODE_MAX = 10;
+export const USER_CODE_PATTERN = /^[A-Z0-9]+$/;
 
 // 7) 케이크 종류 (순서대로 화면에 표시됩니다)
 export const FRUITS = ["peach", "mango", "lemon", "melon"];
@@ -126,12 +129,6 @@ export const RESERVE_CUTOFF_HOUR = 19;
 // 13-2) 미수령 예약을 일괄 정리해 현장 판매로 돌리는 시각 (안내 문구용)
 export const ONSITE_SALE_HOUR = 20;
 
-// 13-3) 그날 예약자 전화번호를 일괄 파기하는 시각 (24시간 기준, 기본 22 = 밤 10시)
-//      관리자 페이지가 열려 있거나 이 시각 이후에 접속하면 자동으로 실행되고,
-//      마감 관리 화면의 '전화번호 일괄 파기' 버튼으로 즉시 실행할 수도 있습니다.
-export const PURGE_HOUR = 22;
-
 // 14) 선택한 픽업 시간이 이 분(分)만큼 지나도 수령하지 않으면
 //     예약이 '취소됨'으로 바뀌고, 그 수량은 다시 예약 가능해집니다.
-//     (전화번호는 PURGE_HOUR 에 그날 것을 한꺼번에 파기합니다)
 export const CANCEL_GRACE_MIN = 60;
