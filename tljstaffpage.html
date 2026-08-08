@@ -488,6 +488,11 @@
       .modal.on {
         display: grid;
       }
+      /* 확인 대화상자는 다른 모달(마감 관리 등) 위에 항상 뜨도록
+         z-index를 더 높게 둡니다. */
+      #confirmModal {
+        z-index: 70;
+      }
       .modal .box {
         background: #fff;
         border-radius: 16px;
@@ -1071,7 +1076,7 @@
         <div class="stat" id="stat-${f}">
           <div class="l">${NAME[f]}</div>
           <div class="n" id="st-${f}">0</div>
-          <div class="cap">/ ${FRUIT_LIMITS[f]}</div>
+          <div class="cap" id="cap-${f}">/ ${FRUIT_LIMITS[f]}</div>
         </div>`,
       ).join("");
       $("fruitToggle").innerHTML = FRUITS.map(
@@ -1260,6 +1265,8 @@
         FRUITS.forEach((f) => {
           const el = $("stat-" + f);
           if (el) el.classList.toggle("full", blocked.includes(f));
+          const cap = $("cap-" + f);
+          if (cap) cap.textContent = `/ ${currentLimits[f] ?? FRUIT_LIMITS[f]}`;
         });
       }
 
