@@ -28,6 +28,10 @@ export const STORES = {
     name: "강남직영점",
     adminIds: ["staff"],
   },
+  snu: {
+    name: "서울대입구역점",
+    adminIds: ["snu"],
+  },
   // 예시) 매장을 늘릴 때는 아래처럼 한 덩어리를 복사해서 추가하세요.
   // hongdae: { name: "홍대점", adminIds: ["hongdae"] },
 };
