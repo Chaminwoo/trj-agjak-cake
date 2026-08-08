@@ -9,13 +9,12 @@ export const MESSAGES = {
     pageTitle: "번호표",
     codeTitleNew: "사용하실 암호를 입력해 주세요",
     userCodeLabel: "사용자 지정 암호",
-    userCodePlaceholder: "예) ABB990",
+    userCodePlaceholder: "영어 혹은 숫자 조합 4~10자리 (예: ABB001)",
     userCodeInvalid: (min, max) =>
       `영문 대문자와 숫자로 ${min}~${max}자리를 입력해 주세요.`,
-    userCodeTaken:
-      "이미 다른 손님이 사용 중입니다. 다른 암호를 입력해 주세요.",
+    userCodeTaken: "이미 다른 손님이 사용 중입니다. 다른 암호를 입력해 주세요.",
     userCodeHelp:
-      "처음이시면 원하시는 암호를 정해 주세요. 이미 예약하셨다면 같은 암호로 번호표를 확인하실 수 있습니다.",
+      "처음이시면 원하시는 암호를 정해 주세요. <br>이미 예약하셨다면 같은 암호로 번호표를 확인하실 수 있습니다.",
     btnReserve: "예약하기",
     confirm: "확인",
     infoTitle: "정보를 입력해 주세요",
@@ -347,7 +346,8 @@ export const MESSAGES = {
     userCodeInvalid: (min, max) =>
       `请输入 ${min}~${max} 位大写英文字母和数字。`,
     userCodeTaken: "该密码已被其他顾客使用，请更换其他密码。",
-    userCodeHelp: "首次请设置您想要的密码；已预约的顾客输入相同密码即可查看号码牌。",
+    userCodeHelp:
+      "首次请设置您想要的密码；已预约的顾客输入相同密码即可查看号码牌。",
     btnReserve: "预约",
     confirm: "确认",
     infoTitle: "请填写信息",
