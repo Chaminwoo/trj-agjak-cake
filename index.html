@@ -1014,6 +1014,10 @@
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       }
       const digits = (s) => (s || "").replace(/\D/g, "");
+      // 현재 시각을 HH:MM 으로 (예약 시각 기록용)
+      function hhmm(d = new Date()) {
+        return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      }
 
       /* ---------- 점포(매장) 판별 ----------
          주소 경로(/gangnam)에서 먼저 찾고, 없으면 ?store=gangnam 를 봅니다.
@@ -1685,6 +1689,8 @@
             receivedAt: null,
             cancelled: false,
             createdAt: serverTimestamp(),
+            // 예약한 시각을 사람이 바로 읽을 수 있게 HH:MM 으로도 남깁니다.
+            createdTime: hhmm(),
           });
           return { ticketNo: next, id };
         });

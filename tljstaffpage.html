@@ -1096,6 +1096,11 @@
       function todayStr(d = new Date()) {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       }
+      // 예약 시 저장해 둔 HH:MM 을 우선 쓰고, 없으면 타임스탬프에서 계산합니다.
+      function timeCell(r) {
+        if (r && r.createdTime) return r.createdTime;
+        return fmtTime(r && r.createdAt);
+      }
       function fmtTime(ts) {
         if (!ts) return "—";
         const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -1331,7 +1336,7 @@
       <td class="col-ty">${chips}</td>
       <td class="col-bg">${esc(bagCell(r.bags))}</td>
       <td class="col-pk">${esc(r.pickupAt || "—")}</td>
-      <td class="col-tm">${fmtTime(r.createdAt)}</td>
+      <td class="col-tm">${timeCell(r)}</td>
       <td class="col-st"></td>
       <td class="col-mg"></td>`;
 
