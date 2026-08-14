@@ -9,7 +9,7 @@ export const MESSAGES = {
     pageTitle: "번호표",
     codeTitleNew: "사용하실 암호를 입력해 주세요",
     userCodeLabel: "사용자 지정 암호",
-    userCodePlaceholder: "영어 혹은 숫자 조합 4~10자리 (예: ABB001)",
+    userCodePlaceholder: "영어 혹은 숫자 조합 (예: ABB001)",
     userCodeInvalid: (min, max) =>
       `영문 대문자와 숫자로 ${min}~${max}자리를 입력해 주세요.`,
     userCodeTaken: "이미 다른 손님이 사용 중입니다. 다른 암호를 입력해 주세요.",
@@ -26,7 +26,7 @@ export const MESSAGES = {
     lemon: "레몬",
     melon: "메론",
     cakePriceNote: (p, max) =>
-      `케이크는 개당 ${p} 이며,<br>종류당 최대 ${max}개까지 선택하실 수 있습니다.`,
+      `${p}<br>종류당 최대 ${max}개까지 선택하실 수 있습니다.`,
     estTotal: "예상 결제 금액",
     next: "다음",
 
@@ -142,8 +142,7 @@ export const MESSAGES = {
     mango: "Mango",
     lemon: "Lemon",
     melon: "Melon",
-    cakePriceNote: (p, max) =>
-      `Each cake is ${p}.<br>Up to ${max} per flavour.`,
+    cakePriceNote: (p, max) => `${p}<br>Up to ${max} per flavour.`,
     estTotal: "Estimated total",
     next: "Next",
 
@@ -227,8 +226,7 @@ export const MESSAGES = {
     noticeSoldOut: "Today's stock is sold out.",
     fruitCount: (name, n) => `${name} ${n}`,
     noticeRemainList: (h, list) => `Cakes left after ${h} : ${list}`,
-    noticeRemainCaution:
-      "In-store stock may differ. Please ask our staff.",
+    noticeRemainCaution: "In-store stock may differ. Please ask our staff.",
     bagNoteFruitboxIcepack:
       "Ice packs cannot be placed in a fruit box. They will be added only to the other bag you chose.",
     noticeCutoff: (h) =>
@@ -258,8 +256,7 @@ export const MESSAGES = {
     mango: "マンゴー",
     lemon: "レモン",
     melon: "メロン",
-    cakePriceNote: (p, max) =>
-      `ケーキは1個 ${p} です。<br>種類ごとに最大${max}個まで選べます。`,
+    cakePriceNote: (p, max) => `${p}<br>種類ごとに最大${max}個まで選べます。`,
     estTotal: "お支払い予定金額",
     next: "次へ",
 
@@ -375,7 +372,7 @@ export const MESSAGES = {
     mango: "芒果",
     lemon: "柠檬",
     melon: "甜瓜",
-    cakePriceNote: (p, max) => `每个蛋糕 ${p}。<br>每种口味最多可选${max}个。`,
+    cakePriceNote: (p, max) => `${p}<br>每种口味最多可选${max}个。`,
     estTotal: "预计付款金额",
     next: "下一步",
 

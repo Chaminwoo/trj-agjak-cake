@@ -95,7 +95,15 @@ export const FRUIT_LIMITS = {
 };
 
 // 9) 케이크 1개당 가격 / 종류당 최대 선택 개수
+//    종류마다 가격이 다르면 CAKE_PRICES 에 적어 주세요.
+//    여기에 없는 종류는 CAKE_PRICE(기본가)로 계산됩니다.
 export const CAKE_PRICE = 12000;
+export const CAKE_PRICES = {
+  peach: 12000,
+  mango: 12000,
+  lemon: 13000,
+  melon: 13000,
+};
 export const MAX_PER_TYPE = 2;
 
 // 10) 포장(가방) 종류와 가격

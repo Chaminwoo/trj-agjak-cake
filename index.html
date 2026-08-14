@@ -875,6 +875,7 @@
         COOLER_CAPACITY,
         ICEPACK_INCLUDED,
         CAKE_PRICE,
+        CAKE_PRICES,
         MAX_PER_TYPE,
         ID_SALT,
         PICKUP_SLOT_START,
@@ -930,7 +931,7 @@
       FRUITS.forEach((f) => setTxt("t-" + f, FRUIT_NAME[f]));
       setHtml(
         "t-cakePriceNote",
-        T.cakePriceNote(T.priceFmt(CAKE_PRICE), MAX_PER_TYPE),
+        T.cakePriceNote(priceNoteText(), MAX_PER_TYPE),
       );
       setTxt("t-bagLabel", T.bagLabel);
       setTxt("bagReset", T.bagReset);
@@ -1076,8 +1077,26 @@
       }
       const cakeCount = (items) =>
         FRUITS.reduce((a, f) => a + (items?.[f] || 0), 0);
+      // 종류별 단가 (CAKE_PRICES 에 없으면 기본가)
+      const priceOf = (f) => CAKE_PRICES?.[f] ?? CAKE_PRICE;
+      // 같은 가격끼리 묶어 "복숭아·망고 12,000원 / 레몬·메론 13,000원" 형태로
+      function priceNoteText() {
+        const groups = new Map();
+        FRUITS.forEach((f) => {
+          const p = priceOf(f);
+          if (!groups.has(p)) groups.set(p, []);
+          groups.get(p).push(FRUIT_NAME[f]);
+        });
+        return [...groups.entries()]
+          .map(([p, names]) => `${names.join("·")} ${T.priceFmt(p)}`)
+          .join(" / ");
+      }
+
       function calcTotal(items, bags) {
-        let sum = cakeCount(items) * CAKE_PRICE;
+        let sum = 0;
+        FRUITS.forEach((f) => {
+          sum += (items?.[f] || 0) * priceOf(f);
+        });
         BAGS.forEach((b) => {
           sum += (bags?.[b.k] || 0) * b.price;
         });
