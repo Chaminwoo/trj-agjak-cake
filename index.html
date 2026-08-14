@@ -1078,7 +1078,11 @@
       const cakeCount = (items) =>
         FRUITS.reduce((a, f) => a + (items?.[f] || 0), 0);
       // 종류별 단가 (CAKE_PRICES 에 없으면 기본가)
-      const priceOf = (f) => CAKE_PRICES?.[f] ?? CAKE_PRICE;
+      // ※ 화면 문구를 만들 때 이 파일 위쪽에서 먼저 호출하므로
+      //   호이스팅되는 function 선언으로 둡니다. (const 로 두면 초기화 전 참조 오류)
+      function priceOf(f) {
+        return CAKE_PRICES?.[f] ?? CAKE_PRICE;
+      }
       // 같은 가격끼리 묶어 "복숭아·망고 12,000원 / 레몬·메론 13,000원" 형태로
       function priceNoteText() {
         const groups = new Map();

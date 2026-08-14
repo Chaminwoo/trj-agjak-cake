@@ -9,7 +9,7 @@ export const MESSAGES = {
     pageTitle: "번호표",
     codeTitleNew: "사용하실 암호를 입력해 주세요",
     userCodeLabel: "사용자 지정 암호",
-    userCodePlaceholder: "영어 혹은 숫자 조합 (예: ABB001)",
+    userCodePlaceholder: "영어 혹은 숫자 조합 4~10자리 (예: ABB001)",
     userCodeInvalid: (min, max) =>
       `영문 대문자와 숫자로 ${min}~${max}자리를 입력해 주세요.`,
     userCodeTaken: "이미 다른 손님이 사용 중입니다. 다른 암호를 입력해 주세요.",
