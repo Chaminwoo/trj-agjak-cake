@@ -109,8 +109,11 @@ export const MESSAGES = {
     noticeShowScreen: "픽업 시 이 예약 화면을 직원에게 보여 주세요.",
     noticeSoldOut: "금일 수량은 마감되었습니다.",
     fruitCount: (name, n) => `${name} ${n}개`,
-    noticeOnsiteRemain: (list) =>
-      `남은 케이크는 매장에서 현장 구매하실 수 있습니다.<br>${list}`,
+    noticeRemainList: (h, list) => `${h} 이후 남은 케이크 : ${list}`,
+    noticeRemainCaution:
+      "현장 개수는 차이가 있을 수 있습니다. 매장 직원에게 문의하세요.",
+    bagNoteFruitboxIcepack:
+      "과일상자에는 아이스팩을 동봉할 수 없습니다. 아이스팩은 함께 고르신 다른 포장에만 담아 드립니다.",
     noticeCutoff: (h) =>
       `${h} 이후에는 예약이 마감되어 현장 구매만 가능합니다.`,
     noticeOnsite: (h) => `${h} 이후 취소된 예약분은 매장에서 현장 판매합니다.`,
@@ -223,8 +226,11 @@ export const MESSAGES = {
     noticeShowScreen: "Please show this screen to our staff at pickup.",
     noticeSoldOut: "Today's stock is sold out.",
     fruitCount: (name, n) => `${name} ${n}`,
-    noticeOnsiteRemain: (list) =>
-      `The remaining cakes can be bought in store.<br>${list}`,
+    noticeRemainList: (h, list) => `Cakes left after ${h} : ${list}`,
+    noticeRemainCaution:
+      "In-store stock may differ. Please ask our staff.",
+    bagNoteFruitboxIcepack:
+      "Ice packs cannot be placed in a fruit box. They will be added only to the other bag you chose.",
     noticeCutoff: (h) =>
       `Reservations close at ${h}. After that, in-store purchase only.`,
     noticeOnsite: (h) => `Reservations cancelled after ${h} are sold in store.`,
@@ -339,8 +345,11 @@ export const MESSAGES = {
       "お受け取りの際、この予約画面をスタッフにお見せください。",
     noticeSoldOut: "本日の数量は終了いたしました。",
     fruitCount: (name, n) => `${name} ${n}個`,
-    noticeOnsiteRemain: (list) =>
-      `残りのケーキは店頭でご購入いただけます。<br>${list}`,
+    noticeRemainList: (h, list) => `${h}以降の残りのケーキ : ${list}`,
+    noticeRemainCaution:
+      "店頭の在庫とは異なる場合があります。スタッフにお問い合わせください。",
+    bagNoteFruitboxIcepack:
+      "フルーツボックスには保冷剤を同梱できません。ご一緒に選ばれた他の袋にのみお入れします。",
     noticeCutoff: (h) => `${h}以降は予約を締め切り、店頭販売のみとなります。`,
     noticeOnsite: (h) => `${h}以降のキャンセル分は店頭で販売いたします。`,
     lookupOnly: "すでに発行された整理券は、暗証番号を入力すると確認できます。",
@@ -443,8 +452,10 @@ export const MESSAGES = {
     noticeShowScreen: "取货时请向店员出示此预约页面。",
     noticeSoldOut: "今日数量已售罄。",
     fruitCount: (name, n) => `${name} ${n}个`,
-    noticeOnsiteRemain: (list) =>
-      `剩余蛋糕可在门店现场购买。<br>${list}`,
+    noticeRemainList: (h, list) => `${h}之后剩余蛋糕 : ${list}`,
+    noticeRemainCaution: "现场数量可能有差异，请咨询门店店员。",
+    bagNoteFruitboxIcepack:
+      "水果盒内无法放置冰袋。冰袋仅会放入您另外选择的包装中。",
     noticeCutoff: (h) => `${h}之后停止预约，仅可现场购买。`,
     noticeOnsite: (h) => `${h}之后取消的预约将在门店现场销售。`,
     lookupOnly: "已领取号码牌的顾客，输入密码即可查看。",

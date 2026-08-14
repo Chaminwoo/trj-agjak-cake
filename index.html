@@ -500,6 +500,23 @@
         min-height: 16px;
         line-height: 1.5;
       }
+      /* 마감 안내처럼 여러 줄로 나뉘는 문구 */
+      .hint .l1,
+      .hint .l2,
+      .hint .l3 {
+        display: block;
+      }
+      .hint .l2 {
+        margin-top: 7px;
+        color: var(--text);
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .hint .l3 {
+        margin-top: 3px;
+        color: var(--muted);
+        font-weight: 500;
+      }
       .hidden {
         display: none !important;
       }
@@ -770,6 +787,7 @@
           <div class="bags" id="bags"></div>
           <p class="subnote" id="t-bagNoteFruitbox"></p>
           <p class="subnote" id="t-bagNoteIcepack"></p>
+          <p class="subnote warn hidden" id="bagNoteFruitboxIcepack"></p>
           <p class="subnote warn hidden" id="bagNoteCooler"></p>
         </div>
 
@@ -919,6 +937,7 @@
       setHtml("t-bagNoteFruitbox", T.bagNoteFruitbox(FRUITBOX_PER));
       setHtml("t-bagNoteIcepack", T.bagNoteIcepack(ICEPACK_INCLUDED));
       setHtml("bagNoteCooler", T.bagNoteCooler(COOLER_CAPACITY));
+      setHtml("bagNoteFruitboxIcepack", T.bagNoteFruitboxIcepack);
       setTxt("t-pickupTimeLabel", T.pickupTimeLabel);
       setHtml("t-pickupTimeNote", T.pickupTimeNote(CANCEL_GRACE_MIN));
       setTxt("t-estTotal", T.estTotal);
@@ -1229,12 +1248,15 @@
       /* 예약이 막혔을 때 손님에게 띄울 안내문 (HTML) */
       function blockedMessage(why) {
         const left = remainingItems();
-        if (!left.length) return T.noticeSoldOut;
-        const head =
-          why === "cutoff"
-            ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
-            : T.noticeSoldOut;
-        return `${head}<br>${T.noticeOnsiteRemain(left.join(", "))}`;
+        const h = T.hourFmt(RESERVE_CUTOFF_HOUR);
+        // 남은 종류가 하나도 없으면 마감 안내만 띄웁니다.
+        if (!left.length) return `<span class="l1">${T.noticeSoldOut}</span>`;
+        const head = why === "cutoff" ? T.noticeCutoff(h) : T.noticeSoldOut;
+        return (
+          `<span class="l1">${head}</span>` +
+          `<span class="l2">${T.noticeRemainList(h, left.join(", "))}</span>` +
+          `<span class="l3">${T.noticeRemainCaution}</span>`
+        );
       }
 
       function renderDayNotice() {
@@ -1376,12 +1398,17 @@
 
       function renderBags() {
         const cakes = cakeCount(qty);
+        // 아이스팩은 과일상자에 넣을 수 없습니다.
+        // 과일상자 외의 포장(무상봉투·쇼핑백·보냉팩)을 하나라도 골라야 열립니다.
+        const otherBags =
+          (bagQty.free || 0) + (bagQty.shopping || 0) + (bagQty.cooler || 0);
         document.querySelectorAll(".bag").forEach((el) => {
           const k = el.dataset.b;
           const spec = BAGS.find((b) => b.k === k) || {};
           let locked = false;
           if (spec.perCakes) locked = Math.floor(cakes / spec.perCakes) < 1;
           if (spec.requiresCooler) locked = (bagQty.cooler || 0) < 1;
+          if (k === "icepack") locked = otherBags < 1;
           if (locked) bagQty[k] = 0;
           else if (spec.perCakes)
             bagQty[k] = Math.min(bagQty[k] || 0, Math.floor(cakes / spec.perCakes));
@@ -1396,6 +1423,11 @@
           (bagQty.fruitbox || 0) * FRUITBOX_PER;
         const needMore = cakes - bagCapacity > 0;
         $("bagNoteCooler").classList.toggle("hidden", !needMore);
+        // 과일상자와 다른 포장을 함께 고른 경우에만 주의문구를 띄웁니다.
+        $("bagNoteFruitboxIcepack").classList.toggle(
+          "hidden",
+          !((bagQty.fruitbox || 0) > 0 && otherBags > 0),
+        );
         updateTotal();
       }
 
