@@ -80,7 +80,7 @@ export const ID_SALT = "trj-agjak-2026-a7f3c1";
 //    영문 대문자와 숫자만 사용합니다. (소문자로 입력해도 자동으로 대문자가 됩니다)
 //    예) ABB990 / 001482 / OAFOFA
 export const USER_CODE_MIN = 4;
-export const USER_CODE_MAX = 10;
+export const USER_CODE_MAX = 11;
 export const USER_CODE_PATTERN = /^[A-Z0-9]+$/;
 
 // 7) 케이크 종류 (순서대로 화면에 표시됩니다)

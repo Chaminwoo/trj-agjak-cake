@@ -744,7 +744,7 @@
             autocomplete="off"
             autocapitalize="characters"
             spellcheck="false"
-            maxlength="10"
+            maxlength="11"
           />
           <p class="subnote" id="t-userCodeHelp"></p>
         </label>
@@ -925,7 +925,7 @@
 
       setTxt("t-codeTitle", T.codeTitleNew);
       setTxt("t-userCodeLabel", T.userCodeLabel);
-      setTxt("t-userCodeHelp", T.userCodeHelp);
+      setHtml("t-userCodeHelp", T.userCodeHelp);
       setTxt("t-infoTitle", T.typeLabel);
       FRUITS.forEach((f) => setTxt("t-" + f, FRUIT_NAME[f]));
       setHtml(

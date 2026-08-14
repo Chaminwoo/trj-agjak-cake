@@ -132,7 +132,7 @@ export const MESSAGES = {
     userCodeTaken:
       "This code is already in use by another guest. Please choose a different one.",
     userCodeHelp:
-      "First time? Choose any code you like. Already reserved? Enter the same code to see your ticket.",
+      "First time? Choose any code you like.<br>Already reserved? Enter the same code to see your ticket.",
     btnReserve: "Reserve",
     confirm: "Continue",
     infoTitle: "Enter your details",
@@ -248,7 +248,7 @@ export const MESSAGES = {
     userCodeTaken:
       "この暗証番号はすでに他のお客様が使用中です。別の番号をご入力ください。",
     userCodeHelp:
-      "初めての方はご希望の暗証番号をお決めください。ご予約済みの方は同じ暗証番号で整理券を確認できます。",
+      "初めての方はご希望の暗証番号をお決めください。<br>ご予約済みの方は同じ暗証番号で整理券を確認できます。",
     btnReserve: "予約する",
     confirm: "確認",
     infoTitle: "情報を入力してください",
@@ -365,7 +365,7 @@ export const MESSAGES = {
       `请输入 ${min}~${max} 位大写英文字母和数字。`,
     userCodeTaken: "该密码已被其他顾客使用，请更换其他密码。",
     userCodeHelp:
-      "首次请设置您想要的密码；已预约的顾客输入相同密码即可查看号码牌。",
+      "首次请设置您想要的密码。<br>已预约的顾客输入相同密码即可查看号码牌。",
     btnReserve: "预约",
     confirm: "确认",
     infoTitle: "请填写信息",
