@@ -233,6 +233,12 @@
         color: var(--muted);
         font-weight: 500;
         margin-top: 5px;
+        white-space: nowrap;
+      }
+      .stat .n .sep {
+        margin: 0 4px;
+        color: var(--line-strong);
+        font-weight: 500;
       }
       .stat.done .n {
         color: var(--brand);
@@ -1069,8 +1075,11 @@
         (f) => `
         <div class="stat" id="stat-${f}">
           <div class="l">${NAME[f]}</div>
-          <div class="n" id="st-${f}">0</div>
-          <div class="cap" id="cap-${f}">/ ${FRUIT_LIMITS[f]}</div>
+          <div class="n">
+            <span id="st-${f}">0</span
+            ><span class="sep">/</span><span id="cap-${f}">${FRUIT_LIMITS[f]}</span>
+          </div>
+          <div class="cap">예약 대기 / 현장 판매 대기</div>
         </div>`,
       ).join("");
       $("fruitToggle").innerHTML = FRUITS.map(
@@ -1216,8 +1225,6 @@
         FRUITS.forEach((f) => {
           const el = $("stat-" + f);
           if (el) el.classList.toggle("full", blocked.includes(f));
-          const cap = $("cap-" + f);
-          if (cap) cap.textContent = `/ ${currentLimits[f] ?? FRUIT_LIMITS[f]}`;
         });
       }
 
@@ -1309,10 +1316,17 @@
         ).length;
         $("stCancel").textContent = rows.filter((r) => r.cancelled).length;
         // 과일 수량은 취소된 예약을 빼고, 개수까지 합산합니다.
+        // 예약 대기 = 취소·수령을 뺀, 아직 손님이 찾아가지 않은 수량
+        // 현장 판매 대기 = 그날 한도 - 예약 대기
+        //   (예약이 모두 수령되면 예약 대기는 0, 현장 판매 대기는 한도로 수렴합니다)
         FRUITS.forEach((f) => {
-          $("st-" + f).textContent = rows
-            .filter((r) => !r.cancelled)
+          const waiting = rows
+            .filter((r) => !r.cancelled && !r.received)
             .reduce((a, r) => a + (itemsOf(r)[f] || 0), 0);
+          const limit = currentLimits[f] ?? FRUIT_LIMITS[f];
+          $("st-" + f).textContent = waiting;
+          const cap = $("cap-" + f);
+          if (cap) cap.textContent = Math.max(0, limit - waiting);
         });
         $("stBox").textContent = rows
           .filter((r) => !r.cancelled)

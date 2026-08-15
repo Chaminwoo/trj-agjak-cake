@@ -824,10 +824,6 @@
             autocomplete="off"
           />
         </label>
-        <div class="totalbox">
-          <span class="tl" id="t-estTotal2"></span>
-          <span class="tv" id="estTotal2"></span>
-        </div>
         <div class="hint" id="codeHint"></div>
         <button class="btn" id="codeBtn"></button>
         <button class="btn ghost" id="codeBack"></button>
@@ -942,13 +938,12 @@
       setTxt("t-pickupTimeLabel", T.pickupTimeLabel);
       setHtml("t-pickupTimeNote", T.pickupTimeNote(CANCEL_GRACE_MIN));
       setTxt("t-estTotal", T.estTotal);
-      setTxt("t-estTotal2", T.estTotal);
       setTxt("t-entryCodeTitle", T.codeLabel);
       setTxt("t-codeLabel", T.codeLabel);
       setTxt("phoneBtn", T.btnReserve);
-      setTxt("formBtn", T.next);
+      setTxt("formBtn", T.issue);
       setTxt("formBack", T.back);
-      setTxt("codeBtn", T.issue);
+      setTxt("codeBtn", T.next);
       setTxt("codeBack", T.back);
       setTxt("cfOk", T.confirm);
       setTxt("cfCancel", T.cancel);
@@ -1369,8 +1364,8 @@
           }
           currentCode = c;
           hide($("screen-phone"));
-          show($("screen-form"));
-          restartFade($("screen-form"));
+          show($("screen-code"));
+          restartFade($("screen-code"));
         } catch (e) {
           busy(false);
           console.error(e);
@@ -1475,7 +1470,6 @@
       function updateTotal() {
         const txt = T.priceFmt(calcTotal(currentItems(), currentBags()));
         setTxt("estTotal", txt);
-        setTxt("estTotal2", txt);
       }
 
       document.querySelectorAll(".bag").forEach((el) => {
@@ -1553,23 +1547,9 @@
       /* ---------- STEP 2 → STEP 3 ---------- */
       $("formBack").addEventListener("click", () => {
         hide($("screen-form"));
-        show($("screen-phone"));
-      });
-      $("formBtn").addEventListener("click", () => {
-        $("formHint").textContent = "";
-        if (cakeCount(qty) === 0) {
-          $("formHint").textContent = T.typeRequired;
-          return;
-        }
-        if (!pickupAt) {
-          $("formHint").textContent = T.pickupTimeRequired;
-          return;
-        }
-        updateTotal();
-        hide($("screen-form"));
         show($("screen-code"));
-        restartFade($("screen-code"));
       });
+      $("formBtn").addEventListener("click", onIssue);
 
       /* ---------- STEP 3 : 입장코드 ---------- */
       const codeEl = $("entryCode");
@@ -1581,25 +1561,58 @@
       });
       $("codeBack").addEventListener("click", () => {
         hide($("screen-code"));
-        show($("screen-form"));
+        show($("screen-phone"));
       });
-      $("codeBtn").addEventListener("click", onIssue);
+      $("codeBtn").addEventListener("click", onCheckEntryCode);
 
-      async function onIssue() {
+      /* 입장코드를 먼저 확인한 뒤 종류 선택으로 넘어갑니다.
+         (최종 발급 시 트랜잭션에서 한 번 더 검사합니다) */
+      async function onCheckEntryCode() {
         const code = digits(codeEl.value);
         $("codeHint").textContent = "";
-        if (cakeCount(qty) === 0 || !pickupAt) {
-          hide($("screen-code"));
-          show($("screen-form"));
-          $("formHint").textContent = cakeCount(qty)
-            ? T.pickupTimeRequired
-            : T.typeRequired;
-          return;
-        }
         if (code.length !== 4) {
           $("codeHint").textContent = T.codeRequired;
           return;
         }
+        busy(true);
+        try {
+          await refreshDay();
+          busy(false);
+          const saved = DAY.entryCode ? String(DAY.entryCode) : "";
+          if (!saved || saved !== code) {
+            $("codeHint").textContent = T.codeWrong;
+            codeEl.value = "";
+            return;
+          }
+          hide($("screen-code"));
+          show($("screen-form"));
+          restartFade($("screen-form"));
+        } catch (e) {
+          busy(false);
+          console.error(e);
+          $("codeHint").textContent = T.errorGeneric;
+        }
+      }
+
+      async function onIssue() {
+        const code = digits(codeEl.value);
+        $("formHint").textContent = "";
+        if (cakeCount(qty) === 0) {
+          $("formHint").textContent = T.typeRequired;
+          return;
+        }
+        if (!pickupAt) {
+          $("formHint").textContent = T.pickupTimeRequired;
+          return;
+        }
+        // 입장코드는 앞 단계에서 확인했지만, 그 사이 코드가 바뀌었을 수 있습니다.
+        if (code.length !== 4) {
+          hide($("screen-form"));
+          show($("screen-code"));
+          $("codeHint").textContent = T.codeRequired;
+          return;
+        }
+        updateTotal();
 
         const items = currentItems();
         const bags = currentBags();
