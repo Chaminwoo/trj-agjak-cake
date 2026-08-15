@@ -132,11 +132,7 @@ export const PICKUP_SLOT_STEP_MIN = 30;
 
 // 13-1) 이 시각 이후에는 새 예약을 받지 않습니다. (기존 번호표 조회는 계속 가능)
 //      운영값은 19 = 오후 7시. 소수점도 가능합니다. (19.5 = 7시 30분)
-//      ★ dev 브랜치 테스트용으로 21(오후 9시)로 열어 둔 상태입니다.
-//        main 에 합칠 때는 반드시 19 로 되돌리세요.
-export const RESERVE_CUTOFF_HOUR = 21;
-// 13-2) 미수령 예약을 일괄 정리해 현장 판매로 돌리는 시각 (안내 문구용)
-export const ONSITE_SALE_HOUR = 20;
+export const RESERVE_CUTOFF_HOUR = 19;
 
 // 14) 선택한 픽업 시간이 이 분(分)만큼 지나도 수령하지 않으면
 //     예약이 '취소됨'으로 바뀌고, 그 수량은 다시 예약 가능해집니다.

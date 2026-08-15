@@ -112,9 +112,6 @@ export const MESSAGES = {
       "과일상자에는 아이스팩을 동봉할 수 없습니다. 아이스팩은 함께 고르신 다른 포장에만 담아 드립니다.",
     noticeCutoff: (h) =>
       `${h} 이후에는 예약이 마감되어 현장 구매만 가능합니다.`,
-    noticeOnsite: (h) => `${h} 이후 취소된 예약분은 매장에서 현장 판매합니다.`,
-    lookupOnly:
-      "이미 발급받으신 번호표는 암호를 입력하면 확인하실 수 있습니다.",
   },
 
   en: {
@@ -224,8 +221,6 @@ export const MESSAGES = {
       "Ice packs cannot be placed in a fruit box. They will be added only to the other bag you chose.",
     noticeCutoff: (h) =>
       `Reservations close at ${h}. After that, in-store purchase only.`,
-    noticeOnsite: (h) => `Reservations cancelled after ${h} are sold in store.`,
-    lookupOnly: "If you already have a ticket, enter your code to view it.",
   },
 
   ja: {
@@ -337,8 +332,6 @@ export const MESSAGES = {
     bagNoteFruitboxIcepack:
       "フルーツボックスには保冷剤を同梱できません。ご一緒に選ばれた他の袋にのみお入れします。",
     noticeCutoff: (h) => `${h}以降は予約を締め切り、店頭販売のみとなります。`,
-    noticeOnsite: (h) => `${h}以降のキャンセル分は店頭で販売いたします。`,
-    lookupOnly: "すでに発行された整理券は、暗証番号を入力すると確認できます。",
   },
 
   zh: {
@@ -440,8 +433,6 @@ export const MESSAGES = {
     bagNoteFruitboxIcepack:
       "水果盒内无法放置冰袋。冰袋仅会放入您另外选择的包装中。",
     noticeCutoff: (h) => `${h}之后停止预约，仅可现场购买。`,
-    noticeOnsite: (h) => `${h}之后取消的预约将在门店现场销售。`,
-    lookupOnly: "已领取号码牌的顾客，输入密码即可查看。",
   },
 };
 

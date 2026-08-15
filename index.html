@@ -879,7 +879,6 @@
         PICKUP_SLOT_STEP_MIN,
         CANCEL_GRACE_MIN,
         RESERVE_CUTOFF_HOUR,
-        ONSITE_SALE_HOUR,
         STORES,
         DEFAULT_STORE,
         USER_CODE_MIN,
@@ -1291,7 +1290,8 @@
           why === "cutoff"
             ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
             : T.noticeSoldOut;
-        el.innerHTML = `${head}<br>${T.noticeOnsite(T.hourFmt(ONSITE_SALE_HOUR))}<br>${T.lookupOnly}`;
+        // 마감 안내는 한 줄만 띄웁니다. (현장 판매 안내·번호표 조회 안내 문구 제거)
+        el.innerHTML = head;
         el.classList.remove("hidden");
       }
 
