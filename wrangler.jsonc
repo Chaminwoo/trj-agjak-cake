@@ -5,6 +5,12 @@
   //  - 실제 파일(/tljstaffpage.html, /qr.js 등)은 그대로 파일이 우선합니다.
   "name": "trj-agjak",
   "compatibility_date": "2026-08-01",
+  // 브랜치별 미리보기 주소를 켭니다.
+  //  - main(운영)  : https://agjak.store
+  //  - dev(테스트) : https://dev-trj-agjak.<계정>.workers.dev
+  // ※ Cloudflare 대시보드에서 '비운영 브랜치 빌드'도 함께 켜야 동작합니다.
+  "workers_dev": true,
+  "preview_urls": true,
   "assets": {
     "directory": "./",
     "not_found_handling": "single-page-application"
