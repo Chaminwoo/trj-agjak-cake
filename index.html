@@ -1259,26 +1259,24 @@
         if (allClosed(blockedList(DAY))) return "soldout";
         return "";
       }
-      /* 아직 팔 수 있는 종류와 남은 개수 (마감된 종류는 제외) */
+      /* 아직 팔 수 있는 종류 (마감된 종류는 제외) — 안내 문구 판정용 */
       function remainingItems() {
         const blocked = blockedList(DAY);
-        return FRUITS.filter((f) => !blocked.includes(f) && remainOf(f) > 0).map(
-          (f) => T.fruitCount(FRUIT_NAME[f], remainOf(f)),
-        );
+        return FRUITS.filter((f) => !blocked.includes(f) && remainOf(f) > 0);
       }
 
-      /* 예약이 막혔을 때 손님에게 띄울 안내문 (HTML) */
+      /* 예약이 막혔을 때 손님에게 띄울 안내문 (HTML)
+         남은 수량은 손님 화면에 노출하지 않습니다. (현장 재고와 다를 수 있어
+         혼선을 주기 때문 — 매장에서 직원이 직접 안내합니다) */
       function blockedMessage(why) {
-        const left = remainingItems();
-        const h = T.hourFmt(RESERVE_CUTOFF_HOUR);
-        // 남은 종류가 하나도 없으면 마감 안내만 띄웁니다.
-        if (!left.length) return `<span class="l1">${T.noticeSoldOut}</span>`;
-        const head = why === "cutoff" ? T.noticeCutoff(h) : T.noticeSoldOut;
-        return (
-          `<span class="l1">${head}</span>` +
-          `<span class="l2">${T.noticeRemainList(h, left.join(", "))}</span>` +
-          `<span class="l3">${T.noticeRemainCaution}</span>`
-        );
+        // 팔 수 있는 종류가 하나도 없으면 '금일 수량 마감'으로 안내합니다.
+        if (!remainingItems().length)
+          return `<span class="l1">${T.noticeSoldOut}</span>`;
+        const head =
+          why === "cutoff"
+            ? T.noticeCutoff(T.hourFmt(RESERVE_CUTOFF_HOUR))
+            : T.noticeSoldOut;
+        return `<span class="l1">${head}</span>`;
       }
 
       function renderDayNotice() {
