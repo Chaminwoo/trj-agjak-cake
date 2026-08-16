@@ -1241,6 +1241,11 @@
 
             renderBanner();
             if ($("closeModal").classList.contains("on")) renderCloseModal();
+            // 한도(limits)가 여기서 바뀌므로, 예약 목록이 그대로여도
+            // "예약 대기 / 현장 판매 대기" 수치를 다시 계산해서 반영합니다.
+            // (안 그러면 관리자가 수량을 조정해도 다음 예약/취소가 생기기
+            //  전까지 화면 숫자가 이전 한도 기준으로 남아 있습니다)
+            render(lastRows);
           },
           (err) => console.error(err),
         );
