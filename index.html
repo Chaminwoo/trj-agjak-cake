@@ -217,6 +217,62 @@
         display: flex;
         background: var(--muted);
       }
+      /* 개수를 1개 이상 고르면 왼쪽에 빼기(-) 버튼이 나타납니다 */
+      .type .minus {
+        position: absolute;
+        top: 50%;
+        left: 8px;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        border: none;
+        border-radius: 50%;
+        background: var(--f-tx);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1;
+        padding: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .type.on .minus {
+        display: flex;
+      }
+      .type.closed .minus {
+        display: none;
+      }
+      /* 버튼을 누르면 살짝 커졌다 작아지는 느낌을 줍니다 */
+      @keyframes tapPop {
+        0% {
+          transform: scale(1);
+        }
+        40% {
+          transform: scale(1.07);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes tapPopY {
+        0% {
+          transform: translateY(-50%) scale(1);
+        }
+        40% {
+          transform: translateY(-50%) scale(1.18);
+        }
+        100% {
+          transform: translateY(-50%) scale(1);
+        }
+      }
+      .type.tap {
+        animation: tapPop 0.18s ease-out;
+      }
+      .type .minus.tap {
+        animation: tapPopY 0.18s ease-out;
+      }
 
       /* ---- 픽업 시간 ---- */
       .timeToggle {
@@ -760,20 +816,23 @@
         <div class="field">
           <div class="types">
             <div class="type" data-k="peach">
+              <button type="button" class="minus" data-k="peach" aria-label="-">−</button>
               <span class="tn" id="t-peach"></span><span class="q"></span>
             </div>
             <div class="type" data-k="mango">
+              <button type="button" class="minus" data-k="mango" aria-label="-">−</button>
               <span class="tn" id="t-mango"></span><span class="q"></span>
             </div>
             <div class="type" data-k="lemon">
+              <button type="button" class="minus" data-k="lemon" aria-label="-">−</button>
               <span class="tn" id="t-lemon"></span><span class="q"></span>
             </div>
             <div class="type" data-k="melon">
+              <button type="button" class="minus" data-k="melon" aria-label="-">−</button>
               <span class="tn" id="t-melon"></span><span class="q"></span>
             </div>
           </div>
           <p class="subnote" id="t-cakePriceNote"></p>
-          <p class="subnote strong" id="t-noticeMaxPerPerson"></p>
         </div>
 
         <div class="field">
@@ -872,7 +931,6 @@
         ICEPACK_INCLUDED,
         CAKE_PRICE,
         CAKE_PRICES,
-        MAX_PER_TYPE,
         ID_SALT,
         PICKUP_SLOT_START,
         PICKUP_SLOT_END,
@@ -924,10 +982,7 @@
       setHtml("t-userCodeHelp", T.userCodeHelp);
       setTxt("t-infoTitle", T.typeLabel);
       FRUITS.forEach((f) => setTxt("t-" + f, FRUIT_NAME[f]));
-      setHtml(
-        "t-cakePriceNote",
-        T.cakePriceNote(priceNoteText(), MAX_PER_TYPE),
-      );
+      setHtml("t-cakePriceNote", T.cakePriceNote(priceNoteText()));
       setTxt("t-bagLabel", T.bagLabel);
       setTxt("bagReset", T.bagReset);
       setHtml("t-bagNoteFruitbox", T.bagNoteFruitbox(FRUITBOX_PER));
@@ -951,10 +1006,6 @@
       setTxt("t-closedBody", T.closedBody);
       setTxt("t-invalidStoreTitle", T.invalidStoreTitle);
       setTxt("t-invalidStoreBody", T.invalidStoreBody);
-      setTxt(
-        "t-noticeMaxPerPerson",
-        T.noticeMaxPerPerson(MAX_PER_TYPE * FRUITS.length, MAX_PER_TYPE),
-      );
       $("userCode").placeholder = T.userCodePlaceholder;
       $("entryCode").placeholder = T.codePlaceholder;
 
@@ -1173,7 +1224,8 @@
       const limitsOf = (data) => ({ ...FRUIT_LIMITS, ...(data?.limits || {}) });
       const limitOf = (f) => limitsOf(DAY)[f] || 0;
       const remainOf = (f) => Math.max(0, limitOf(f) - (DAY.counts?.[f] || 0));
-      const maxQtyOf = (f) => Math.min(MAX_PER_TYPE, remainOf(f));
+      // 인당 개수 제한은 두지 않고, 남은 재고만큼만 고를 수 있게 합니다.
+      const maxQtyOf = (f) => remainOf(f);
 
       function soldOutList(counts, data) {
         const lim = limitsOf(data);
@@ -1399,13 +1451,38 @@
         renderBags();
       }
 
+      // 버튼을 누르면 살짝 커졌다 작아지는 애니메이션을 다시 재생시킵니다.
+      // (클래스를 껐다 켜서 강제로 리플로우해야 같은 애니메이션이 재시작됩니다)
+      function popTap(el) {
+        el.classList.remove("tap");
+        void el.offsetWidth;
+        el.classList.add("tap");
+      }
+
       document.querySelectorAll(".type").forEach((el) => {
-        el.addEventListener("click", () => {
+        el.addEventListener("click", (e) => {
           if (el.classList.contains("closed")) return;
+          if (e.target.closest(".minus")) return; // 빼기 버튼은 별도 처리
           const k = el.dataset.k;
           const max = maxQtyOf(k);
-          qty[k] = max <= 0 ? 0 : ((qty[k] || 0) + 1) % (max + 1);
+          if (max <= 0 || (qty[k] || 0) >= max) return;
+          qty[k] = (qty[k] || 0) + 1;
           $("formHint").textContent = "";
+          popTap(el);
+          renderTypes();
+        });
+      });
+
+      document.querySelectorAll(".type .minus").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const el = btn.closest(".type");
+          if (el.classList.contains("closed")) return;
+          const k = btn.dataset.k;
+          if ((qty[k] || 0) <= 0) return;
+          qty[k] = qty[k] - 1;
+          $("formHint").textContent = "";
+          popTap(btn);
           renderTypes();
         });
       });

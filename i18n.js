@@ -25,8 +25,7 @@ export const MESSAGES = {
     mango: "망고",
     lemon: "레몬",
     melon: "메론",
-    cakePriceNote: (p, max) =>
-      `${p}<br>종류당 최대 ${max}개까지 선택하실 수 있습니다.`,
+    cakePriceNote: (p) => p,
     estTotal: "예상 결제 금액",
     next: "다음",
 
@@ -104,8 +103,6 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${ap} ${h12}시${mm ? ` ${mm}분` : ""}`;
     },
-    noticeMaxPerPerson: (total, per) =>
-      `1인당 총 ${total}개까지 구매하실 수 있습니다. (품목별 ${per}개씩)`,
     noticeShowScreen: "픽업 시 이 예약 화면을 직원에게 보여 주세요.",
     noticeSoldOut: "금일 수량은 마감되었습니다.",
     bagNoteFruitboxIcepack:
@@ -135,7 +132,7 @@ export const MESSAGES = {
     mango: "Mango",
     lemon: "Lemon",
     melon: "Melon",
-    cakePriceNote: (p, max) => `${p}<br>Up to ${max} per flavour.`,
+    cakePriceNote: (p) => p,
     estTotal: "Estimated total",
     next: "Next",
 
@@ -213,8 +210,6 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${h12}:${String(mm).padStart(2, "0")} ${ap}`;
     },
-    noticeMaxPerPerson: (total, per) =>
-      `Up to ${total} cakes per person (${per} of each flavour).`,
     noticeShowScreen: "Please show this screen to our staff at pickup.",
     noticeSoldOut: "Today's stock is sold out.",
     bagNoteFruitboxIcepack:
@@ -244,7 +239,7 @@ export const MESSAGES = {
     mango: "マンゴー",
     lemon: "レモン",
     melon: "メロン",
-    cakePriceNote: (p, max) => `${p}<br>種類ごとに最大${max}個まで選べます。`,
+    cakePriceNote: (p) => p,
     estTotal: "お支払い予定金額",
     next: "次へ",
 
@@ -324,8 +319,6 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${ap}${h12}時${mm ? `${mm}分` : ""}`;
     },
-    noticeMaxPerPerson: (total, per) =>
-      `お一人様あたり合計${total}個まで（種類ごとに${per}個ずつ）ご購入いただけます。`,
     noticeShowScreen:
       "お受け取りの際、この予約画面をスタッフにお見せください。",
     noticeSoldOut: "本日の数量は終了いたしました。",
@@ -354,7 +347,7 @@ export const MESSAGES = {
     mango: "芒果",
     lemon: "柠檬",
     melon: "甜瓜",
-    cakePriceNote: (p, max) => `${p}<br>每种口味最多可选${max}个。`,
+    cakePriceNote: (p) => p,
     estTotal: "预计付款金额",
     next: "下一步",
 
@@ -426,8 +419,6 @@ export const MESSAGES = {
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
       return `${ap}${h12}点${mm ? `${mm}分` : ""}`;
     },
-    noticeMaxPerPerson: (total, per) =>
-      `每人最多可购买 ${total} 个（每种口味 ${per} 个）。`,
     noticeShowScreen: "取货时请向店员出示此预约页面。",
     noticeSoldOut: "今日数量已售罄。",
     bagNoteFruitboxIcepack:
