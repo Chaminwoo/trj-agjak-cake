@@ -126,9 +126,9 @@ export const COOLER_CAPACITY = 2;
 export const ICEPACK_INCLUDED = 2;
 
 // 13) 픽업 시간 선택 범위 (24시간 기준) 와 간격(분)
-//     기본: 오후 2시 ~ 오후 7시, 30분 간격
+//     기본: 오후 2시 ~ 오후 9시, 30분 간격
 export const PICKUP_SLOT_START = 14;
-export const PICKUP_SLOT_END = 19;
+export const PICKUP_SLOT_END = 21;
 export const PICKUP_SLOT_STEP_MIN = 30;
 
 // 13-1) 이 시각 이후에는 새 예약을 받지 않습니다. (기존 번호표 조회는 계속 가능)
